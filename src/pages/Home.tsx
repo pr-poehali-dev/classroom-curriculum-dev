@@ -1,9 +1,38 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { Link } from 'react-router-dom';
+import EditableContent from '@/components/EditableContent';
+import AnimatedCharacter from '@/components/AnimatedCharacter';
 
 export default function Home() {
+  const [texts, setTexts] = useState({
+    mainTitle: 'Добро пожаловать в мир природы!',
+    mainSubtitle: 'Интерактивная образовательная платформа по предмету "Окружающий мир" для учеников 1-4 классов по программе УМК "Школа России"',
+    aboutProjectTitle: 'О проекте',
+    aboutProjectText: 'Познавательная платформа с интерактивными играми, викторинами и творческими заданиями. Учитесь вместе с Муравьишкой Вопросиком и Мудрой Черепахой!',
+    aboutAuthorTitle: 'Об авторе',
+    aboutAuthorText: 'Проект создан учителем начальных классов с многолетним опытом работы по программе "Школа России". Цель - сделать обучение увлекательным и эффективным.',
+    ctaTitle: 'Готовы начать увлекательное путешествие?',
+    ctaText: 'Присоединяйтесь к тысячам учеников, которые уже открывают для себя мир природы!',
+    contactEmail: 'info@example.com',
+    contactPhone: '+7 (999) 123-45-67'
+  });
+  
+  const [media, setMedia] = useState({
+    projectVideo: '',
+    authorImage: ''
+  });
+
+  const updateText = (key: string, value: string) => {
+    setTexts(prev => ({ ...prev, [key]: value }));
+  };
+  
+  const updateMedia = (key: string, value: string) => {
+    setMedia(prev => ({ ...prev, [key]: value }));
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <div className="watercolor-leaves" />
@@ -36,54 +65,74 @@ export default function Home() {
       <main className="relative z-10">
         <section className="container mx-auto px-4 py-16">
           <div className="text-center mb-12">
-            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-green-800 via-green-600 to-green-500 bg-clip-text text-transparent">
-              Добро пожаловать в мир природы!
-            </h2>
-            <p className="text-xl text-green-700 max-w-3xl mx-auto leading-relaxed">
-              Интерактивная образовательная платформа по предмету "Окружающий мир" 
-              для учеников 1-4 классов по программе УМК "Школа России"
-            </p>
+            <div className="flex justify-center items-center gap-8 mb-6">
+              <div className="hidden md:block">
+                <AnimatedCharacter type="ant" animation="happy" size={150} />
+              </div>
+              <div className="flex-1">
+                <EditableContent
+                  initialValue={texts.mainTitle}
+                  onSave={(value) => updateText('mainTitle', value)}
+                  as="h2"
+                  className="text-5xl font-bold mb-4 bg-gradient-to-r from-green-800 via-green-600 to-green-500 bg-clip-text text-transparent"
+                />
+                <EditableContent
+                  initialValue={texts.mainSubtitle}
+                  onSave={(value) => updateText('mainSubtitle', value)}
+                  as="p"
+                  className="text-xl text-green-700 max-w-3xl mx-auto leading-relaxed"
+                />
+              </div>
+              <div className="hidden md:block">
+                <AnimatedCharacter type="turtle" animation="happy" size={150} />
+              </div>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-16">
             <Card className="watercolor-card border-2 border-green-200 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1">
               <CardContent className="p-8">
-                <div className="aspect-video bg-gradient-to-br from-blue-100 to-green-100 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-20">
-                    <div className="absolute top-4 left-4 text-6xl">🌲</div>
-                    <div className="absolute bottom-4 right-4 text-6xl">🦋</div>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl">🌍</div>
-                  </div>
-                  <div className="relative z-10 text-center">
-                    <Icon name="Play" className="text-green-600 mx-auto mb-2" size={48} />
-                    <p className="text-green-700 font-semibold">Видео о проекте</p>
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-green-800 mb-2">О проекте</h3>
-                <p className="text-green-700">
-                  Познавательная платформа с интерактивными играми, викторинами и творческими заданиями. 
-                  Учитесь вместе с Муравьишкой Вопросиком и Мудрой Черепахой!
-                </p>
+                <EditableContent
+                  type="video"
+                  initialValue={media.projectVideo}
+                  onSave={(value) => updateMedia('projectVideo', value)}
+                  className="aspect-video bg-gradient-to-br from-blue-100 to-green-100 rounded-xl mb-4 w-full"
+                />
+                <EditableContent
+                  initialValue={texts.aboutProjectTitle}
+                  onSave={(value) => updateText('aboutProjectTitle', value)}
+                  as="h3"
+                  className="text-2xl font-bold text-green-800 mb-2"
+                />
+                <EditableContent
+                  initialValue={texts.aboutProjectText}
+                  onSave={(value) => updateText('aboutProjectText', value)}
+                  as="p"
+                  className="text-green-700"
+                />
               </CardContent>
             </Card>
 
             <Card className="watercolor-card border-2 border-green-200 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1">
               <CardContent className="p-8">
-                <div className="aspect-video bg-gradient-to-br from-green-100 to-yellow-100 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-20">
-                    <div className="absolute top-4 right-4 text-6xl">🎨</div>
-                    <div className="absolute bottom-4 left-4 text-6xl">📚</div>
-                  </div>
-                  <div className="relative z-10 text-center p-6">
-                    <div className="text-6xl mb-3">👨‍🏫</div>
-                    <p className="text-green-700 font-semibold">Создатель платформы</p>
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-green-800 mb-2">Об авторе</h3>
-                <p className="text-green-700">
-                  Проект создан учителем начальных классов с многолетним опытом работы по программе "Школа России". 
-                  Цель - сделать обучение увлекательным и эффективным.
-                </p>
+                <EditableContent
+                  type="image"
+                  initialValue={media.authorImage || 'https://cdn.poehali.dev/files/51871eff-33d4-41d4-9edf-4145c31c1c07.png'}
+                  onSave={(value) => updateMedia('authorImage', value)}
+                  className="aspect-video rounded-xl mb-4 w-full object-cover"
+                />
+                <EditableContent
+                  initialValue={texts.aboutAuthorTitle}
+                  onSave={(value) => updateText('aboutAuthorTitle', value)}
+                  as="h3"
+                  className="text-2xl font-bold text-green-800 mb-2"
+                />
+                <EditableContent
+                  initialValue={texts.aboutAuthorText}
+                  onSave={(value) => updateText('aboutAuthorText', value)}
+                  as="p"
+                  className="text-green-700"
+                />
               </CardContent>
             </Card>
           </div>
@@ -259,12 +308,18 @@ export default function Home() {
             <Card className="watercolor-card border-2 border-green-300 max-w-2xl mx-auto bg-gradient-to-br from-green-50 to-yellow-50">
               <CardContent className="p-8">
                 <div className="text-6xl mb-4">🚀</div>
-                <h3 className="text-2xl font-bold text-green-800 mb-4">
-                  Готовы начать увлекательное путешествие?
-                </h3>
-                <p className="text-green-700 mb-6">
-                  Присоединяйтесь к тысячам учеников, которые уже открывают для себя мир природы!
-                </p>
+                <EditableContent
+                  initialValue={texts.ctaTitle}
+                  onSave={(value) => updateText('ctaTitle', value)}
+                  as="h3"
+                  className="text-2xl font-bold text-green-800 mb-4"
+                />
+                <EditableContent
+                  initialValue={texts.ctaText}
+                  onSave={(value) => updateText('ctaText', value)}
+                  as="p"
+                  className="text-green-700 mb-6"
+                />
                 <Link to="/learn">
                   <Button size="lg" className="gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-lg px-8 py-6">
                     <Icon name="Sparkles" size={20} />
@@ -297,10 +352,20 @@ export default function Home() {
             </div>
             <div>
               <h4 className="font-bold text-green-800 mb-3">Контакты</h4>
-              <p className="text-sm text-green-600">
-                Email: info@example.com<br />
-                Телефон: +7 (999) 123-45-67
-              </p>
+              <div className="text-sm text-green-600">
+                <EditableContent
+                  initialValue={`Email: ${texts.contactEmail}`}
+                  onSave={(value) => updateText('contactEmail', value.replace('Email: ', ''))}
+                  as="p"
+                  className="text-sm text-green-600"
+                />
+                <EditableContent
+                  initialValue={`Телефон: ${texts.contactPhone}`}
+                  onSave={(value) => updateText('contactPhone', value.replace('Телефон: ', ''))}
+                  as="p"
+                  className="text-sm text-green-600"
+                />
+              </div>
             </div>
           </div>
           <div className="text-center text-sm text-green-600 pt-6 border-t border-green-200">

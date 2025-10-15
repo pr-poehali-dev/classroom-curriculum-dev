@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Icon from '@/components/ui/icon';
-import GameCharacter from '@/components/GameCharacter';
+import AnimatedCharacter from '@/components/AnimatedCharacter';
+import EditableContent from '@/components/EditableContent';
 import { useSound } from '@/hooks/useSound';
 
 interface Game {
@@ -404,6 +406,10 @@ const getModuleThemeClass = (theme?: string) => {
 };
 
 export default function Index() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isLearnPage = location.pathname === '/learn';
+  
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedDifficulty, setSelectedDifficulty] = useState<Game['difficulty'] | 'all'>('all');
   const [selectedGame, setSelectedGame] = useState<{ game: Game; topic: string } | null>(null);
@@ -415,10 +421,27 @@ export default function Index() {
   const [wrongAnswers, setWrongAnswers] = useState(0);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [crosswordAnswers, setCrosswordAnswers] = useState<Record<number, string>>({});
+  const [currentCharacter, setCurrentCharacter] = useState<'ant' | 'turtle'>('ant');
+  const [editableTexts, setEditableTexts] = useState({
+    heroTitle: 'Окружающий мир с Муравьишкой и Черепашкой',
+    heroSubtitle: 'Интерактивные игры и задания по окружающему миру для 1-4 классов',
+    aboutTitle: 'О проекте',
+    aboutText: 'Платформа создана для увлекательного изучения окружающего мира. Вместе с Муравьишкой Вопросиком и Мудрой Черепашкой дети познают природу, историю и культуру через игры и творческие задания.',
+    authorTitle: 'Об авторе',
+    authorText: 'Проект разработан с любовью к природе и образованию. Наша цель — сделать обучение интересным и доступным для каждого ребёнка.',
+    videoPlaceholder: 'https://via.placeholder.com/800x450/4ade80/ffffff?text=Видео+о+проекте'
+  });
   const [revealedDefinition, setRevealedDefinition] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState<string | null>(null);
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null);
   const [characterAnimation, setCharacterAnimation] = useState<'grow' | 'shrink' | null>(null);
+  
+  const characters: ('ant' | 'turtle')[] = ['ant', 'turtle'];
+  
+  useEffect(() => {
+    const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
+    setCurrentCharacter(randomCharacter);
+  }, [selectedGame, currentQuestion]);
   
   const { playCorrectSound, playWrongSound, playClickSound } = useSound();
 
@@ -565,10 +588,18 @@ export default function Index() {
                 <p className="text-sm text-muted-foreground">УМК "Школа России" • 1-4 класс</p>
               </div>
             </div>
-            <Button variant="outline" className="gap-2">
-              <Icon name="Printer" size={18} />
-              Версия для печати
-            </Button>
+            <div className="flex gap-2">
+              {isLearnPage && (
+                <Button onClick={() => navigate('/')} variant="outline" className="gap-2">
+                  <Icon name="Home" size={18} />
+                  На главную
+                </Button>
+              )}
+              <Button variant="outline" className="gap-2" onClick={() => window.print()}>
+                <Icon name="Printer" size={18} />
+                Версия для печати
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -942,25 +973,42 @@ export default function Index() {
               </DialogHeader>
 
               <div className="space-y-6 py-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <GameCharacter 
-                    type="ant" 
-                    correctAnswers={score} 
-                    totalAnswers={currentQuestion - 1}
-                    showAnimation={characterAnimation}
-                  />
+                <div className="grid grid-cols-3 gap-4 items-center">
+                  <div className="flex justify-center">
+                    {currentCharacter === 'ant' ? (
+                      <AnimatedCharacter 
+                        type="ant" 
+                        animation={lastAnswerCorrect === true ? 'celebrating' : lastAnswerCorrect === false ? 'thinking' : 'idle'}
+                        size={180}
+                      />
+                    ) : (
+                      <div className="w-[180px] h-[180px] opacity-30 flex items-center justify-center">
+                        <AnimatedCharacter type="ant" animation="idle" size={120} />
+                      </div>
+                    )}
+                  </div>
                   <div className="col-span-1">
                     <Progress value={(currentQuestion / totalQuestions) * 100} className="h-3 mb-2" />
                     <p className="text-center text-sm text-muted-foreground">
                       Вопрос {currentQuestion}/{totalQuestions}
                     </p>
+                    <p className="text-center text-lg font-bold text-primary mt-2">
+                      Баллы: {score}
+                    </p>
                   </div>
-                  <GameCharacter 
-                    type="turtle" 
-                    correctAnswers={score} 
-                    totalAnswers={currentQuestion - 1}
-                    showAnimation={characterAnimation}
-                  />
+                  <div className="flex justify-center">
+                    {currentCharacter === 'turtle' ? (
+                      <AnimatedCharacter 
+                        type="turtle" 
+                        animation={lastAnswerCorrect === true ? 'celebrating' : lastAnswerCorrect === false ? 'thinking' : 'idle'}
+                        size={180}
+                      />
+                    ) : (
+                      <div className="w-[180px] h-[180px] opacity-30 flex items-center justify-center">
+                        <AnimatedCharacter type="turtle" animation="idle" size={120} />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <Card className="nature-gradient border-green-300 shadow-lg">
