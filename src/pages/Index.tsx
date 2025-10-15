@@ -5,12 +5,21 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 
 interface Game {
-  type: 'quiz' | 'match' | 'practice';
+  type: 'quiz' | 'match' | 'practice' | 'crossword' | 'puzzle' | 'timeline';
   difficulty: 'easy' | 'medium' | 'hard';
   estimatedTime: number;
+}
+
+interface CrosswordWord {
+  word: string;
+  definition: string;
+  row: number;
+  col: number;
+  direction: 'across' | 'down';
 }
 
 interface Topic {
@@ -44,48 +53,62 @@ const educationData: Grade[] = [
         modules: [
           {
             id: 'm1-1',
-            name: 'Числа и счёт',
+            name: 'Что и кто?',
             topics: [
               { 
-                title: 'Счёт от 1 до 10', 
-                description: 'Знакомство с цифрами',
+                title: 'Что такое Родина?', 
+                description: 'Знакомство с понятием Родина, Россия',
                 games: [
                   { type: 'quiz', difficulty: 'easy', estimatedTime: 5 },
-                  { type: 'practice', difficulty: 'easy', estimatedTime: 10 }
+                  { type: 'crossword', difficulty: 'easy', estimatedTime: 8 },
+                  { type: 'match', difficulty: 'easy', estimatedTime: 7 }
                 ]
               },
               { 
-                title: 'Сравнение чисел', 
-                description: 'Больше, меньше, равно',
+                title: 'Что мы знаем о народах России?',
+                description: 'Разнообразие народов и культур',
                 games: [
                   { type: 'match', difficulty: 'easy', estimatedTime: 7 },
+                  { type: 'puzzle', difficulty: 'easy', estimatedTime: 10 },
                   { type: 'quiz', difficulty: 'medium', estimatedTime: 8 }
                 ]
               },
               { 
-                title: 'Сложение в пределах 10',
+                title: 'Что у нас над головой?',
+                description: 'Небо, солнце, звёзды',
                 games: [
-                  { type: 'practice', difficulty: 'medium', estimatedTime: 12 },
-                  { type: 'quiz', difficulty: 'hard', estimatedTime: 10 }
+                  { type: 'crossword', difficulty: 'easy', estimatedTime: 10 },
+                  { type: 'practice', difficulty: 'easy', estimatedTime: 12 }
+                ]
+              },
+              { 
+                title: 'Что растёт на подоконнике?',
+                description: 'Комнатные растения',
+                games: [
+                  { type: 'match', difficulty: 'easy', estimatedTime: 8 },
+                  { type: 'puzzle', difficulty: 'easy', estimatedTime: 10 }
                 ]
               }
             ]
           },
           {
             id: 'm1-2',
-            name: 'Геометрия',
+            name: 'Как, откуда и куда?',
             topics: [
               { 
-                title: 'Фигуры: круг, квадрат, треугольник',
+                title: 'Как живёт семья?',
+                description: 'Семейные традиции',
                 games: [
-                  { type: 'match', difficulty: 'easy', estimatedTime: 8 },
-                  { type: 'quiz', difficulty: 'easy', estimatedTime: 6 }
+                  { type: 'quiz', difficulty: 'easy', estimatedTime: 6 },
+                  { type: 'crossword', difficulty: 'easy', estimatedTime: 9 }
                 ]
               },
               { 
-                title: 'Цвета и формы',
+                title: 'Откуда берётся вода?',
+                description: 'Путь воды в дом',
                 games: [
-                  { type: 'match', difficulty: 'easy', estimatedTime: 5 }
+                  { type: 'timeline', difficulty: 'medium', estimatedTime: 10 },
+                  { type: 'quiz', difficulty: 'easy', estimatedTime: 7 }
                 ]
               }
             ]
@@ -97,19 +120,22 @@ const educationData: Grade[] = [
         modules: [
           {
             id: 'm1-3',
-            name: 'Вычитание',
+            name: 'Где и когда?',
             topics: [
               { 
-                title: 'Вычитание в пределах 10',
+                title: 'Когда наступит лето?',
+                description: 'Времена года',
                 games: [
-                  { type: 'practice', difficulty: 'medium', estimatedTime: 10 },
-                  { type: 'quiz', difficulty: 'medium', estimatedTime: 8 }
+                  { type: 'timeline', difficulty: 'easy', estimatedTime: 8 },
+                  { type: 'match', difficulty: 'easy', estimatedTime: 7 }
                 ]
               },
               { 
-                title: 'Решение задач',
+                title: 'Где живут белые медведи?',
+                description: 'Холодные районы Земли',
                 games: [
-                  { type: 'quiz', difficulty: 'hard', estimatedTime: 15 }
+                  { type: 'crossword', difficulty: 'medium', estimatedTime: 12 },
+                  { type: 'quiz', difficulty: 'medium', estimatedTime: 8 }
                 ]
               }
             ]
@@ -126,46 +152,52 @@ const educationData: Grade[] = [
         modules: [
           {
             id: 'm2-1',
-            name: 'Числа до 100',
+            name: 'Природа',
             topics: [
               { 
-                title: 'Счёт десятками',
+                title: 'Живая и неживая природа',
+                description: 'Признаки живого',
                 games: [
-                  { type: 'practice', difficulty: 'easy', estimatedTime: 8 }
+                  { type: 'match', difficulty: 'easy', estimatedTime: 8 },
+                  { type: 'crossword', difficulty: 'easy', estimatedTime: 10 }
                 ]
               },
               { 
-                title: 'Сложение и вычитание двузначных чисел',
+                title: 'Дикие и домашние животные',
+                description: 'Различия диких и домашних животных',
                 games: [
-                  { type: 'practice', difficulty: 'medium', estimatedTime: 12 },
+                  { type: 'puzzle', difficulty: 'medium', estimatedTime: 12 },
                   { type: 'quiz', difficulty: 'medium', estimatedTime: 10 }
                 ]
               },
               { 
-                title: 'Таблица умножения на 2',
+                title: 'Красная книга',
+                description: 'Охрана природы',
                 games: [
-                  { type: 'quiz', difficulty: 'medium', estimatedTime: 10 },
-                  { type: 'practice', difficulty: 'hard', estimatedTime: 15 }
+                  { type: 'crossword', difficulty: 'medium', estimatedTime: 15 },
+                  { type: 'match', difficulty: 'medium', estimatedTime: 10 }
                 ]
               }
             ]
           },
           {
             id: 'm2-2',
-            name: 'Единицы измерения',
+            name: 'Жизнь города и села',
             topics: [
               { 
-                title: 'Сантиметр и метр',
+                title: 'Что такое экономика?',
+                description: 'Промышленность, сельское хозяйство',
                 games: [
-                  { type: 'match', difficulty: 'easy', estimatedTime: 7 },
-                  { type: 'practice', difficulty: 'medium', estimatedTime: 10 }
+                  { type: 'quiz', difficulty: 'medium', estimatedTime: 10 },
+                  { type: 'crossword', difficulty: 'medium', estimatedTime: 12 }
                 ]
               },
               { 
-                title: 'Час и минута',
+                title: 'Из чего что сделано?',
+                description: 'Производство вещей',
                 games: [
-                  { type: 'match', difficulty: 'medium', estimatedTime: 9 },
-                  { type: 'quiz', difficulty: 'medium', estimatedTime: 8 }
+                  { type: 'timeline', difficulty: 'medium', estimatedTime: 12 },
+                  { type: 'match', difficulty: 'medium', estimatedTime: 9 }
                 ]
               }
             ]
@@ -182,45 +214,52 @@ const educationData: Grade[] = [
         modules: [
           {
             id: 'm3-1',
-            name: 'Умножение и деление',
+            name: 'Как устроен мир',
             topics: [
               { 
-                title: 'Таблица умножения',
+                title: 'Природа. Разнообразие природы',
+                description: 'Царства природы',
                 games: [
-                  { type: 'practice', difficulty: 'hard', estimatedTime: 20 },
+                  { type: 'crossword', difficulty: 'medium', estimatedTime: 15 },
                   { type: 'quiz', difficulty: 'hard', estimatedTime: 12 }
                 ]
               },
               { 
-                title: 'Деление с остатком',
+                title: 'Человек',
+                description: 'Ступеньки познания',
                 games: [
-                  { type: 'practice', difficulty: 'hard', estimatedTime: 15 },
-                  { type: 'quiz', difficulty: 'hard', estimatedTime: 10 }
+                  { type: 'practice', difficulty: 'medium', estimatedTime: 10 },
+                  { type: 'puzzle', difficulty: 'medium', estimatedTime: 12 }
                 ]
               },
               { 
-                title: 'Порядок действий',
+                title: 'Общество',
+                description: 'Государство, народ',
                 games: [
-                  { type: 'quiz', difficulty: 'medium', estimatedTime: 10 }
+                  { type: 'match', difficulty: 'hard', estimatedTime: 10 },
+                  { type: 'crossword', difficulty: 'hard', estimatedTime: 15 }
                 ]
               }
             ]
           },
           {
             id: 'm3-2',
-            name: 'Доли и дроби',
+            name: 'Эта удивительная природа',
             topics: [
               { 
-                title: 'Половина, треть, четверть',
+                title: 'Тела, вещества, частицы',
+                description: 'Строение вещества',
                 games: [
-                  { type: 'match', difficulty: 'medium', estimatedTime: 10 },
-                  { type: 'quiz', difficulty: 'medium', estimatedTime: 8 }
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 12 },
+                  { type: 'crossword', difficulty: 'hard', estimatedTime: 15 }
                 ]
               },
               { 
-                title: 'Сравнение долей',
+                title: 'Превращения и круговорот воды',
+                description: 'Три состояния воды',
                 games: [
-                  { type: 'quiz', difficulty: 'hard', estimatedTime: 12 }
+                  { type: 'timeline', difficulty: 'hard', estimatedTime: 15 },
+                  { type: 'practice', difficulty: 'hard', estimatedTime: 12 }
                 ]
               }
             ]
@@ -237,47 +276,52 @@ const educationData: Grade[] = [
         modules: [
           {
             id: 'm4-1',
-            name: 'Многозначные числа',
+            name: 'Земля и человечество',
             topics: [
               { 
-                title: 'Числа до 1000000',
+                title: 'Мир глазами астронома',
+                description: 'Вселенная, планеты',
                 games: [
-                  { type: 'practice', difficulty: 'medium', estimatedTime: 12 },
-                  { type: 'quiz', difficulty: 'medium', estimatedTime: 10 }
-                ]
-              },
-              { 
-                title: 'Сложение и вычитание',
-                games: [
-                  { type: 'practice', difficulty: 'hard', estimatedTime: 15 },
-                  { type: 'quiz', difficulty: 'hard', estimatedTime: 12 }
-                ]
-              },
-              { 
-                title: 'Умножение на однозначное число',
-                games: [
-                  { type: 'practice', difficulty: 'hard', estimatedTime: 18 },
+                  { type: 'crossword', difficulty: 'hard', estimatedTime: 18 },
                   { type: 'quiz', difficulty: 'hard', estimatedTime: 15 }
+                ]
+              },
+              { 
+                title: 'Мир глазами географа',
+                description: 'Глобус и карта',
+                games: [
+                  { type: 'puzzle', difficulty: 'hard', estimatedTime: 20 },
+                  { type: 'match', difficulty: 'hard', estimatedTime: 12 }
+                ]
+              },
+              { 
+                title: 'Мир глазами историка',
+                description: 'История, археология',
+                games: [
+                  { type: 'timeline', difficulty: 'hard', estimatedTime: 20 },
+                  { type: 'crossword', difficulty: 'hard', estimatedTime: 18 }
                 ]
               }
             ]
           },
           {
             id: 'm4-2',
-            name: 'Уравнения',
+            name: 'Природа России',
             topics: [
               { 
-                title: 'Решение простых уравнений',
+                title: 'Равнины и горы России',
+                description: 'Поверхность нашей страны',
                 games: [
-                  { type: 'practice', difficulty: 'hard', estimatedTime: 20 },
-                  { type: 'quiz', difficulty: 'hard', estimatedTime: 15 }
+                  { type: 'match', difficulty: 'hard', estimatedTime: 15 },
+                  { type: 'crossword', difficulty: 'hard', estimatedTime: 18 }
                 ]
               },
               { 
-                title: 'Буквенные выражения',
+                title: 'Природные зоны России',
+                description: 'Арктика, тундра, тайга',
                 games: [
-                  { type: 'quiz', difficulty: 'hard', estimatedTime: 12 },
-                  { type: 'practice', difficulty: 'hard', estimatedTime: 18 }
+                  { type: 'puzzle', difficulty: 'hard', estimatedTime: 20 },
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 15 }
                 ]
               }
             ]
@@ -291,7 +335,10 @@ const educationData: Grade[] = [
 const gameTypeLabels: Record<Game['type'], string> = {
   quiz: 'Викторина',
   match: 'Сопоставление',
-  practice: 'Тренировка'
+  practice: 'Тренировка',
+  crossword: 'Кроссворд',
+  puzzle: 'Пазл',
+  timeline: 'Хронология'
 };
 
 const difficultyLabels: Record<Game['difficulty'], string> = {
@@ -306,6 +353,13 @@ const difficultyColors: Record<Game['difficulty'], string> = {
   hard: 'bg-red-100 text-red-700 border-red-200'
 };
 
+const sampleCrosswordData: CrosswordWord[] = [
+  { word: 'РОДИНА', definition: 'Страна, где человек родился', row: 0, col: 0, direction: 'across' },
+  { word: 'РОССИЯ', definition: 'Наша великая страна', row: 0, col: 0, direction: 'down' },
+  { word: 'ФЛАГ', definition: 'Символ государства с тремя цветами', row: 2, col: 1, direction: 'across' },
+  { word: 'ГЕРБ', definition: 'Эмблема государства с двуглавым орлом', row: 4, col: 0, direction: 'across' }
+];
+
 export default function Index() {
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedGame, setSelectedGame] = useState<{ game: Game; topic: string } | null>(null);
@@ -315,6 +369,8 @@ export default function Index() {
   const [totalQuestions] = useState(10);
   const [score, setScore] = useState(0);
   const [gameCompleted, setGameCompleted] = useState(false);
+  const [crosswordAnswers, setCrosswordAnswers] = useState<Record<number, string>>({});
+  const [revealedDefinition, setRevealedDefinition] = useState<number | null>(null);
 
   useEffect(() => {
     if (gameStarted && timeRemaining > 0) {
@@ -339,6 +395,8 @@ export default function Index() {
       setCurrentQuestion(1);
       setScore(0);
       setGameCompleted(false);
+      setCrosswordAnswers({});
+      setRevealedDefinition(null);
     }
   };
 
@@ -349,6 +407,8 @@ export default function Index() {
     setCurrentQuestion(1);
     setScore(0);
     setGameCompleted(false);
+    setCrosswordAnswers({});
+    setRevealedDefinition(null);
   };
 
   const handleAnswer = (correct: boolean) => {
@@ -360,6 +420,24 @@ export default function Index() {
     } else {
       setGameCompleted(true);
     }
+  };
+
+  const handleCrosswordInput = (index: number, value: string) => {
+    setCrosswordAnswers({ ...crosswordAnswers, [index]: value.toUpperCase() });
+    if (value.toUpperCase() === sampleCrosswordData[index].word) {
+      setScore(score + 1);
+    }
+  };
+
+  const checkCrossword = () => {
+    let correct = 0;
+    sampleCrosswordData.forEach((word, index) => {
+      if (crosswordAnswers[index] === word.word) {
+        correct++;
+      }
+    });
+    setScore(correct);
+    setGameCompleted(true);
   };
 
   const formatTime = (seconds: number) => {
@@ -376,6 +454,12 @@ export default function Index() {
         return 'Найдите правильные пары элементов. Перетаскивайте карточки, чтобы соединить их.';
       case 'practice':
         return 'Решайте задачи последовательно. Вы можете использовать подсказки и повторять попытки.';
+      case 'crossword':
+        return 'Разгадайте кроссворд, вписывая слова по определениям. Нажмите на номер, чтобы увидеть определение.';
+      case 'puzzle':
+        return 'Соберите картинку из частей, перемещая фрагменты в правильные позиции.';
+      case 'timeline':
+        return 'Расположите события в правильном хронологическом порядке от раннего к позднему.';
     }
   };
 
@@ -388,11 +472,11 @@ export default function Index() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <Icon name="BookOpen" className="text-white" size={24} />
+                <Icon name="Globe" className="text-white" size={24} />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Образовательная платформа</h1>
-                <p className="text-sm text-muted-foreground">Начальная школа 1-4 класс</p>
+                <h1 className="text-xl font-bold text-foreground">Окружающий мир</h1>
+                <p className="text-sm text-muted-foreground">УМК "Школа России" • 1-4 класс</p>
               </div>
             </div>
             <Button variant="outline" className="gap-2">
@@ -544,7 +628,7 @@ export default function Index() {
       <footer className="bg-white border-t border-border mt-12 no-print">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <p>© 2024 Образовательная платформа</p>
+            <p>© 2024 Окружающий мир • УМК "Школа России"</p>
             <div className="flex items-center gap-4">
               <a href="#" className="hover:text-foreground transition-colors">Помощь</a>
               <a href="#" className="hover:text-foreground transition-colors">Контакты</a>
@@ -554,7 +638,7 @@ export default function Index() {
       </footer>
 
       <Dialog open={selectedGame !== null} onOpenChange={(open) => !open && closeGame()}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           {selectedGame && !gameStarted && (
             <>
               <DialogHeader>
@@ -597,7 +681,7 @@ export default function Index() {
                     <ul className="mt-4 space-y-2 text-sm">
                       <li className="flex items-center gap-2">
                         <Icon name="Check" className="text-green-600" size={16} />
-                        <span>Всего вопросов: {totalQuestions}</span>
+                        <span>{selectedGame.game.type === 'crossword' ? 'Всего слов: 4' : `Всего вопросов: ${totalQuestions}`}</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Icon name="Check" className="text-green-600" size={16} />
@@ -619,7 +703,83 @@ export default function Index() {
             </>
           )}
 
-          {selectedGame && gameStarted && !gameCompleted && (
+          {selectedGame && gameStarted && !gameCompleted && selectedGame.game.type === 'crossword' && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Icon name="Grid3x3" className="text-primary" size={24} />
+                    Кроссворд
+                  </span>
+                  <div className="flex items-center gap-2 text-lg">
+                    <Icon name="Clock" size={20} />
+                    <span className={timeRemaining < 60 ? 'text-red-600 font-bold' : ''}>
+                      {formatTime(timeRemaining)}
+                    </span>
+                  </div>
+                </DialogTitle>
+                <DialogDescription>
+                  Разгадайте все слова. Нажмите на номер для подсказки.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-6 py-4">
+                <div className="grid gap-4">
+                  {sampleCrosswordData.map((word, index) => (
+                    <Card key={index} className="overflow-hidden">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-10 h-10 flex-shrink-0"
+                            onClick={() => setRevealedDefinition(index)}
+                          >
+                            {index + 1}
+                          </Button>
+                          <div className="flex-1">
+                            {revealedDefinition === index && (
+                              <div className="mb-3 p-3 bg-primary/10 rounded-lg animate-in fade-in slide-in-from-top-2">
+                                <p className="text-sm font-medium text-primary flex items-center gap-2">
+                                  <Icon name="Lightbulb" size={16} />
+                                  {word.definition}
+                                </p>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2">
+                              <Input
+                                placeholder={`Слово (${word.word.length} букв)`}
+                                value={crosswordAnswers[index] || ''}
+                                onChange={(e) => handleCrosswordInput(index, e.target.value)}
+                                maxLength={word.word.length}
+                                className="uppercase font-mono text-lg tracking-widest"
+                              />
+                              {crosswordAnswers[index] === word.word && (
+                                <Icon name="CheckCircle2" className="text-green-600 flex-shrink-0" size={24} />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                <div className="flex gap-3">
+                  <Button onClick={checkCrossword} className="flex-1 gap-2">
+                    <Icon name="Check" size={18} />
+                    Проверить ответы
+                  </Button>
+                  <Button variant="outline" onClick={closeGame}>
+                    <Icon name="X" size={18} />
+                    Закрыть
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {selectedGame && gameStarted && !gameCompleted && selectedGame.game.type !== 'crossword' && (
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center justify-between">
@@ -651,23 +811,57 @@ export default function Index() {
                     </div>
                     
                     <h3 className="text-xl font-semibold mb-6">
-                      {selectedGame.game.type === 'quiz' && 'Сколько будет 5 + 3?'}
-                      {selectedGame.game.type === 'match' && 'Соедините число с правильным количеством предметов'}
-                      {selectedGame.game.type === 'practice' && 'Решите пример: 7 + 2 = ?'}
+                      {selectedGame.game.type === 'quiz' && 'Какая планета самая большая в Солнечной системе?'}
+                      {selectedGame.game.type === 'match' && 'Сопоставьте животное с его местом обитания'}
+                      {selectedGame.game.type === 'practice' && 'Расположите времена года в правильном порядке'}
+                      {selectedGame.game.type === 'puzzle' && 'Соберите изображение карты России'}
+                      {selectedGame.game.type === 'timeline' && 'Расположите события в хронологическом порядке'}
                     </h3>
 
                     <div className="grid grid-cols-2 gap-3">
-                      {[1, 2, 3, 4].map((option) => (
-                        <Button
-                          key={option}
-                          variant="outline"
-                          size="lg"
-                          className="h-16 text-lg hover:bg-primary hover:text-white transition-colors"
-                          onClick={() => handleAnswer(option === 2)}
-                        >
-                          Вариант {option}
-                        </Button>
-                      ))}
+                      {selectedGame.game.type === 'match' ? (
+                        <>
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium mb-2">Животные:</p>
+                            {['Белый медведь', 'Верблюд', 'Пингвин', 'Слон'].map((animal, i) => (
+                              <Button
+                                key={i}
+                                variant="outline"
+                                size="lg"
+                                className="w-full justify-start hover:bg-primary hover:text-white"
+                              >
+                                {animal}
+                              </Button>
+                            ))}
+                          </div>
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium mb-2">Места обитания:</p>
+                            {['Арктика', 'Пустыня', 'Антарктида', 'Саванна'].map((place, i) => (
+                              <Button
+                                key={i}
+                                variant="outline"
+                                size="lg"
+                                className="w-full justify-start hover:bg-primary hover:text-white"
+                                onClick={() => handleAnswer(i === 0)}
+                              >
+                                {place}
+                              </Button>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        ['Юпитер', 'Марс', 'Земля', 'Венера'].map((option, i) => (
+                          <Button
+                            key={i}
+                            variant="outline"
+                            size="lg"
+                            className="h-16 text-lg hover:bg-primary hover:text-white transition-colors"
+                            onClick={() => handleAnswer(i === 0)}
+                          >
+                            {option}
+                          </Button>
+                        ))
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -699,14 +893,20 @@ export default function Index() {
                 <div className="text-center">
                   <div className="w-24 h-24 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
                     <span className="text-4xl font-bold text-primary">
-                      {Math.round((score / totalQuestions) * 100)}%
+                      {selectedGame.game.type === 'crossword' 
+                        ? Math.round((score / sampleCrosswordData.length) * 100)
+                        : Math.round((score / totalQuestions) * 100)}%
                     </span>
                   </div>
                   <h3 className="text-2xl font-bold mb-2">
-                    {score >= totalQuestions * 0.8 ? 'Отлично!' : score >= totalQuestions * 0.6 ? 'Хорошо!' : 'Попробуйте ещё раз!'}
+                    {score >= (selectedGame.game.type === 'crossword' ? sampleCrosswordData.length : totalQuestions) * 0.8 
+                      ? 'Отлично!' 
+                      : score >= (selectedGame.game.type === 'crossword' ? sampleCrosswordData.length : totalQuestions) * 0.6 
+                      ? 'Хорошо!' 
+                      : 'Попробуйте ещё раз!'}
                   </h3>
                   <p className="text-muted-foreground">
-                    Правильных ответов: {score} из {totalQuestions}
+                    Правильных ответов: {score} из {selectedGame.game.type === 'crossword' ? sampleCrosswordData.length : totalQuestions}
                   </p>
                 </div>
 
@@ -722,7 +922,9 @@ export default function Index() {
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Точность</span>
                         <span className="font-semibold">
-                          {Math.round((score / totalQuestions) * 100)}%
+                          {selectedGame.game.type === 'crossword'
+                            ? Math.round((score / sampleCrosswordData.length) * 100)
+                            : Math.round((score / totalQuestions) * 100)}%
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
