@@ -179,7 +179,7 @@ export default function Index() {
 
       <nav className="bg-white border-b border-border no-print">
         <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap mx-1 px-0 bg-slate-400 rounded-none">
             {[1, 2, 3, 4].map((grade) => (
               <Button
                 key={grade}
