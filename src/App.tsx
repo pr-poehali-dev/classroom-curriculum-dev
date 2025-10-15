@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { EditModeProvider } from "@/components/EditModeContext";
 import Home from "./pages/Home";
 import Learn from "./pages/Learn";
+import AboutProject from "./pages/AboutProject";
+import AboutAuthor from "./pages/AboutAuthor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +23,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/learn" element={<Learn />} />
+            <Route path="/about-project" element={<AboutProject />} />
+            <Route path="/about-author" element={<AboutAuthor />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

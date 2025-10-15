@@ -1,20 +1,21 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import EditableContent from '@/components/EditableContent';
-import WatercolorCharacter from '@/components/WatercolorCharacter';
+import AnimatedCharacter from '@/components/AnimatedCharacter';
+import RippleCard from '@/components/RippleCard';
 import { useEditMode } from '@/components/EditModeContext';
 import { Input } from '@/components/ui/input';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 export default function Home() {
+  const navigate = useNavigate();
   const { isEditMode, toggleEditMode } = useEditMode();
-  const [showAboutProject, setShowAboutProject] = useState(false);
-  const [showAboutAuthor, setShowAboutAuthor] = useState(false);
-  const [backgroundColor, setBackgroundColor] = useState('#f0f9f0');
   
-  const [texts, setTexts] = useState({
+  const [backgroundColor, setBackgroundColor] = useLocalStorage('homeBackgroundColor', '#f0f9f0');
+  
+  const [texts, setTexts] = useLocalStorage('homeTexts', {
     mainTitle: 'Добро пожаловать в мир природы!',
     mainSubtitle: 'Интерактивная образовательная платформа по предмету "Окружающий мир" для учеников 1-4 классов по программе УМК "Школа России"',
     aboutProjectTitle: 'О проекте',
@@ -27,9 +28,9 @@ export default function Home() {
     contactPhone: '+7 (999) 123-45-67'
   });
   
-  const [media, setMedia] = useState({
-    projectVideo: '',
-    authorImage: ''
+  const [media, setMedia] = useLocalStorage('homeMedia', {
+    projectImage: 'https://cdn.poehali.dev/files/51871eff-33d4-41d4-9edf-4145c31c1c07.png',
+    authorImage: 'https://cdn.poehali.dev/files/51871eff-33d4-41d4-9edf-4145c31c1c07.png'
   });
 
   const updateText = (key: string, value: string) => {
@@ -98,8 +99,8 @@ export default function Home() {
         <section className="container mx-auto px-4 py-16">
           <div className="text-center mb-12">
             <div className="flex justify-center items-center gap-8 mb-6">
-              <div className="hidden md:block">
-                <WatercolorCharacter type="ant" size={180} />
+              <div className="hidden md:block transform -scale-x-100">
+                <AnimatedCharacter type="ant" animation="happy" size={160} />
               </div>
               <div className="flex-1">
                 <EditableContent
@@ -116,87 +117,69 @@ export default function Home() {
                 />
               </div>
               <div className="hidden md:block">
-                <WatercolorCharacter type="turtle" size={180} />
+                <AnimatedCharacter type="turtle" animation="happy" size={160} />
               </div>
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-16">
-            <Card className="watercolor-card border-2 border-green-200 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-2xl text-green-800">
-                    <EditableContent
-                      initialValue={texts.aboutProjectTitle}
-                      onSave={(value) => updateText('aboutProjectTitle', value)}
-                      as="span"
-                      className="text-2xl font-bold text-green-800"
-                    />
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowAboutProject(!showAboutProject)}
-                  >
-                    <Icon name={showAboutProject ? 'ChevronUp' : 'ChevronDown'} size={20} />
-                  </Button>
+            <RippleCard 
+              className="watercolor-card border-2 border-green-200 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer active:scale-95 active:shadow-lg"
+              onClick={() => navigate('/about-project')}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <EditableContent
+                    initialValue={texts.aboutProjectTitle}
+                    onSave={(value) => updateText('aboutProjectTitle', value)}
+                    as="h3"
+                    className="text-2xl font-bold text-green-800"
+                  />
+                  <Icon name="ChevronRight" className="text-green-600" size={24} />
                 </div>
-              </CardHeader>
-              {showAboutProject && (
-                <CardContent className="pt-0">
-                  <EditableContent
-                    type="video"
-                    initialValue={media.projectVideo}
-                    onSave={(value) => updateMedia('projectVideo', value)}
-                    className="aspect-video bg-gradient-to-br from-blue-100 to-green-100 rounded-xl mb-4 w-full"
-                  />
-                  <EditableContent
-                    initialValue={texts.aboutProjectText}
-                    onSave={(value) => updateText('aboutProjectText', value)}
-                    as="p"
-                    className="text-green-700"
-                  />
-                </CardContent>
-              )}
-            </Card>
+                <EditableContent
+                  type="image"
+                  initialValue={media.projectImage}
+                  onSave={(value) => updateMedia('projectImage', value)}
+                  className="aspect-video rounded-xl mb-4 w-full object-cover"
+                />
+                <EditableContent
+                  initialValue={texts.aboutProjectText}
+                  onSave={(value) => updateText('aboutProjectText', value)}
+                  as="p"
+                  className="text-green-700 line-clamp-3"
+                />
+              </CardContent>
+            </RippleCard>
 
-            <Card className="watercolor-card border-2 border-green-200 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-2xl text-green-800">
-                    <EditableContent
-                      initialValue={texts.aboutAuthorTitle}
-                      onSave={(value) => updateText('aboutAuthorTitle', value)}
-                      as="span"
-                      className="text-2xl font-bold text-green-800"
-                    />
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowAboutAuthor(!showAboutAuthor)}
-                  >
-                    <Icon name={showAboutAuthor ? 'ChevronUp' : 'ChevronDown'} size={20} />
-                  </Button>
+            <RippleCard 
+              className="watercolor-card border-2 border-green-200 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 cursor-pointer active:scale-95 active:shadow-lg"
+              onClick={() => navigate('/about-author')}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <EditableContent
+                    initialValue={texts.aboutAuthorTitle}
+                    onSave={(value) => updateText('aboutAuthorTitle', value)}
+                    as="h3"
+                    className="text-2xl font-bold text-green-800"
+                  />
+                  <Icon name="ChevronRight" className="text-green-600" size={24} />
                 </div>
-              </CardHeader>
-              {showAboutAuthor && (
-                <CardContent className="pt-0">
-                  <EditableContent
-                    type="image"
-                    initialValue={media.authorImage || 'https://cdn.poehali.dev/files/51871eff-33d4-41d4-9edf-4145c31c1c07.png'}
-                    onSave={(value) => updateMedia('authorImage', value)}
-                    className="aspect-video rounded-xl mb-4 w-full object-cover"
-                  />
-                  <EditableContent
-                    initialValue={texts.aboutAuthorText}
-                    onSave={(value) => updateText('aboutAuthorText', value)}
-                    as="p"
-                    className="text-green-700"
-                  />
-                </CardContent>
-              )}
-            </Card>
+                <EditableContent
+                  type="image"
+                  initialValue={media.authorImage}
+                  onSave={(value) => updateMedia('authorImage', value)}
+                  className="aspect-video rounded-xl mb-4 w-full object-cover"
+                />
+                <EditableContent
+                  initialValue={texts.aboutAuthorText}
+                  onSave={(value) => updateText('aboutAuthorText', value)}
+                  as="p"
+                  className="text-green-700 line-clamp-3"
+                />
+              </CardContent>
+            </RippleCard>
           </div>
 
           <div className="mb-16">
