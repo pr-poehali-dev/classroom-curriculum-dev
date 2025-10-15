@@ -13,7 +13,7 @@ import { useSound } from '@/hooks/useSound';
 
 interface Game {
   type: 'quiz' | 'match' | 'practice' | 'crossword' | 'puzzle' | 'timeline';
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: 'easy' | 'medium' | 'hard' | 'creative';
   estimatedTime: number;
 }
 
@@ -65,8 +65,9 @@ const educationData: Grade[] = [
                 description: 'Знакомство с понятием Родина, Россия',
                 games: [
                   { type: 'quiz', difficulty: 'easy', estimatedTime: 5 },
-                  { type: 'crossword', difficulty: 'easy', estimatedTime: 8 },
-                  { type: 'match', difficulty: 'easy', estimatedTime: 7 }
+                  { type: 'crossword', difficulty: 'medium', estimatedTime: 8 },
+                  { type: 'match', difficulty: 'hard', estimatedTime: 7 },
+                  { type: 'practice', difficulty: 'creative', estimatedTime: 20 }
                 ]
               },
               { 
@@ -74,8 +75,9 @@ const educationData: Grade[] = [
                 description: 'Разнообразие народов и культур',
                 games: [
                   { type: 'match', difficulty: 'easy', estimatedTime: 7 },
-                  { type: 'puzzle', difficulty: 'easy', estimatedTime: 10 },
-                  { type: 'quiz', difficulty: 'medium', estimatedTime: 8 }
+                  { type: 'puzzle', difficulty: 'medium', estimatedTime: 10 },
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 8 },
+                  { type: 'practice', difficulty: 'creative', estimatedTime: 25 }
                 ]
               },
               { 
@@ -83,7 +85,9 @@ const educationData: Grade[] = [
                 description: 'Небо, солнце, звёзды',
                 games: [
                   { type: 'crossword', difficulty: 'easy', estimatedTime: 10 },
-                  { type: 'practice', difficulty: 'easy', estimatedTime: 12 }
+                  { type: 'practice', difficulty: 'medium', estimatedTime: 12 },
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 10 },
+                  { type: 'practice', difficulty: 'creative', estimatedTime: 30 }
                 ]
               },
               { 
@@ -91,7 +95,9 @@ const educationData: Grade[] = [
                 description: 'Комнатные растения',
                 games: [
                   { type: 'match', difficulty: 'easy', estimatedTime: 8 },
-                  { type: 'puzzle', difficulty: 'easy', estimatedTime: 10 }
+                  { type: 'puzzle', difficulty: 'medium', estimatedTime: 10 },
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 8 },
+                  { type: 'practice', difficulty: 'creative', estimatedTime: 35 }
                 ]
               }
             ]
@@ -357,13 +363,15 @@ const gameTypeLabels: Record<Game['type'], string> = {
 const difficultyLabels: Record<Game['difficulty'], string> = {
   easy: 'Лёгкий',
   medium: 'Средний',
-  hard: 'Сложный'
+  hard: 'Сложный',
+  creative: 'Творческий'
 };
 
 const difficultyColors: Record<Game['difficulty'], string> = {
   easy: 'bg-green-100 text-green-700 border-green-200',
   medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  hard: 'bg-red-100 text-red-700 border-red-200'
+  hard: 'bg-red-100 text-red-700 border-red-200',
+  creative: 'bg-purple-100 text-purple-700 border-purple-200'
 };
 
 const sampleCrosswordData: CrosswordWord[] = [
@@ -397,6 +405,7 @@ const getModuleThemeClass = (theme?: string) => {
 
 export default function Index() {
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Game['difficulty'] | 'all'>('all');
   const [selectedGame, setSelectedGame] = useState<{ game: Game; topic: string } | null>(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
@@ -541,7 +550,10 @@ export default function Index() {
 
   return (
     <div className="min-h-screen nature-gradient">
-      <header className="bg-white/95 backdrop-blur-sm border-b border-primary/20 sticky top-0 z-50 no-print shadow-sm">
+      <div className="watercolor-leaves" />
+      <div className="absolute inset-0 gradient-nature opacity-30 pointer-events-none" />
+      
+      <header className="relative z-10 bg-white/95 backdrop-blur-sm border-b border-primary/20 sticky top-0 z-50 no-print shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -561,20 +573,71 @@ export default function Index() {
         </div>
       </header>
 
-      <nav className="bg-white border-b border-border no-print">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            {[1, 2, 3, 4].map((grade) => (
+      <nav className="relative z-10 bg-white/90 backdrop-blur-md border-b border-green-200 no-print">
+        <div className="container mx-auto px-4 py-4">
+          <div className="mb-3">
+            <p className="text-sm font-semibold text-green-700 mb-2">🎓 Выберите класс:</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              {[1, 2, 3, 4].map((grade) => (
+                <Button
+                  key={grade}
+                  variant={selectedGrade === grade ? 'default' : 'outline'}
+                  onClick={() => setSelectedGrade(grade)}
+                  className="gap-2"
+                >
+                  <Icon name="GraduationCap" size={16} />
+                  {grade} класс
+                </Button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-green-700 mb-2">🎯 Уровень сложности:</p>
+            <div className="flex items-center gap-2 flex-wrap">
               <Button
-                key={grade}
-                variant={selectedGrade === grade ? 'default' : 'outline'}
-                onClick={() => setSelectedGrade(grade)}
-                className="gap-2"
+                variant={selectedDifficulty === 'all' ? 'default' : 'outline'}
+                onClick={() => setSelectedDifficulty('all')}
+                size="sm"
               >
-                <Icon name="GraduationCap" size={16} />
-                {grade} класс
+                Все уровни
               </Button>
-            ))}
+              <Button
+                variant={selectedDifficulty === 'easy' ? 'default' : 'outline'}
+                onClick={() => setSelectedDifficulty('easy')}
+                size="sm"
+                className="gap-1"
+              >
+                <span>🌱</span>
+                Лёгкий
+              </Button>
+              <Button
+                variant={selectedDifficulty === 'medium' ? 'default' : 'outline'}
+                onClick={() => setSelectedDifficulty('medium')}
+                size="sm"
+                className="gap-1"
+              >
+                <span>🌿</span>
+                Средний
+              </Button>
+              <Button
+                variant={selectedDifficulty === 'hard' ? 'default' : 'outline'}
+                onClick={() => setSelectedDifficulty('hard')}
+                size="sm"
+                className="gap-1"
+              >
+                <span>🌳</span>
+                Сложный
+              </Button>
+              <Button
+                variant={selectedDifficulty === 'creative' ? 'default' : 'outline'}
+                onClick={() => setSelectedDifficulty('creative')}
+                size="sm"
+                className="gap-1"
+              >
+                <span>🎨</span>
+                Творческий
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
@@ -643,22 +706,24 @@ export default function Index() {
                               )}
                               
                               <div className="flex flex-wrap gap-2 mt-3">
-                                {topic.games.map((game, gIndex) => (
-                                  <Button
-                                    key={gIndex}
-                                    variant="outline"
-                                    size="sm"
-                                    className="gap-2 text-xs h-8"
-                                    onClick={() => setSelectedGame({ game, topic: topic.title })}
-                                  >
-                                    <Icon name="Gamepad2" size={14} />
-                                    {gameTypeLabels[game.type]}
-                                    <Badge className={`${difficultyColors[game.difficulty]} text-xs px-1.5 py-0 h-5`}>
-                                      {difficultyLabels[game.difficulty]}
-                                    </Badge>
-                                    <span className="text-muted-foreground">~{game.estimatedTime} мин</span>
-                                  </Button>
-                                ))}
+                                {topic.games
+                                  .filter(game => selectedDifficulty === 'all' || game.difficulty === selectedDifficulty)
+                                  .map((game, gIndex) => (
+                                    <Button
+                                      key={gIndex}
+                                      variant="outline"
+                                      size="sm"
+                                      className="gap-2 text-xs h-8"
+                                      onClick={() => setSelectedGame({ game, topic: topic.title })}
+                                    >
+                                      <Icon name="Gamepad2" size={14} />
+                                      {gameTypeLabels[game.type]}
+                                      <Badge className={`${difficultyColors[game.difficulty]} text-xs px-1.5 py-0 h-5`}>
+                                        {difficultyLabels[game.difficulty]}
+                                      </Badge>
+                                      <span className="text-muted-foreground">~{game.estimatedTime} мин</span>
+                                    </Button>
+                                  ))}
                               </div>
                             </div>
                             <Button
