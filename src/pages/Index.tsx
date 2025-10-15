@@ -6,7 +6,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import Icon from '@/components/ui/icon';
+import GameCharacter from '@/components/GameCharacter';
+import { useSound } from '@/hooks/useSound';
 
 interface Game {
   type: 'quiz' | 'match' | 'practice' | 'crossword' | 'puzzle' | 'timeline';
@@ -32,6 +35,7 @@ interface Module {
   id: string;
   name: string;
   topics: Topic[];
+  theme?: 'nature' | 'sky' | 'earth' | 'water';
 }
 
 interface Textbook {
@@ -54,6 +58,7 @@ const educationData: Grade[] = [
           {
             id: 'm1-1',
             name: 'Что и кто?',
+            theme: 'nature',
             topics: [
               { 
                 title: 'Что такое Родина?', 
@@ -94,6 +99,7 @@ const educationData: Grade[] = [
           {
             id: 'm1-2',
             name: 'Как, откуда и куда?',
+            theme: 'water',
             topics: [
               { 
                 title: 'Как живёт семья?',
@@ -121,6 +127,7 @@ const educationData: Grade[] = [
           {
             id: 'm1-3',
             name: 'Где и когда?',
+            theme: 'sky',
             topics: [
               { 
                 title: 'Когда наступит лето?',
@@ -153,6 +160,7 @@ const educationData: Grade[] = [
           {
             id: 'm2-1',
             name: 'Природа',
+            theme: 'nature',
             topics: [
               { 
                 title: 'Живая и неживая природа',
@@ -183,6 +191,7 @@ const educationData: Grade[] = [
           {
             id: 'm2-2',
             name: 'Жизнь города и села',
+            theme: 'earth',
             topics: [
               { 
                 title: 'Что такое экономика?',
@@ -215,6 +224,7 @@ const educationData: Grade[] = [
           {
             id: 'm3-1',
             name: 'Как устроен мир',
+            theme: 'nature',
             topics: [
               { 
                 title: 'Природа. Разнообразие природы',
@@ -245,6 +255,7 @@ const educationData: Grade[] = [
           {
             id: 'm3-2',
             name: 'Эта удивительная природа',
+            theme: 'water',
             topics: [
               { 
                 title: 'Тела, вещества, частицы',
@@ -277,6 +288,7 @@ const educationData: Grade[] = [
           {
             id: 'm4-1',
             name: 'Земля и человечество',
+            theme: 'sky',
             topics: [
               { 
                 title: 'Мир глазами астронома',
@@ -307,6 +319,7 @@ const educationData: Grade[] = [
           {
             id: 'm4-2',
             name: 'Природа России',
+            theme: 'earth',
             topics: [
               { 
                 title: 'Равнины и горы России',
@@ -360,6 +373,28 @@ const sampleCrosswordData: CrosswordWord[] = [
   { word: 'ГЕРБ', definition: 'Эмблема государства с двуглавым орлом', row: 4, col: 0, direction: 'across' }
 ];
 
+const explanations: Record<string, string> = {
+  'Юпитер': 'Юпитер - самая большая планета в Солнечной системе, газовый гигант с большим красным пятном.',
+  'Марс': 'Марс - красная планета, четвёртая по удалённости от Солнца.',
+  'Земля': 'Земля - наша родная планета, единственная известная планета с жизнью.',
+  'Венера': 'Венера - вторая планета от Солнца, самая горячая планета Солнечной системы.'
+};
+
+const getModuleThemeClass = (theme?: string) => {
+  switch (theme) {
+    case 'nature':
+      return 'nature-gradient';
+    case 'sky':
+      return 'sky-gradient';
+    case 'earth':
+      return 'earth-gradient';
+    case 'water':
+      return 'water-gradient';
+    default:
+      return 'bg-secondary';
+  }
+};
+
 export default function Index() {
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedGame, setSelectedGame] = useState<{ game: Game; topic: string } | null>(null);
@@ -368,9 +403,15 @@ export default function Index() {
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [totalQuestions] = useState(10);
   const [score, setScore] = useState(0);
+  const [wrongAnswers, setWrongAnswers] = useState(0);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [crosswordAnswers, setCrosswordAnswers] = useState<Record<number, string>>({});
   const [revealedDefinition, setRevealedDefinition] = useState<number | null>(null);
+  const [showExplanation, setShowExplanation] = useState<string | null>(null);
+  const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null);
+  const [characterAnimation, setCharacterAnimation] = useState<'grow' | 'shrink' | null>(null);
+  
+  const { playCorrectSound, playWrongSound, playClickSound } = useSound();
 
   useEffect(() => {
     if (gameStarted && timeRemaining > 0) {
@@ -406,19 +447,52 @@ export default function Index() {
     setTimeRemaining(0);
     setCurrentQuestion(1);
     setScore(0);
+    setWrongAnswers(0);
     setGameCompleted(false);
     setCrosswordAnswers({});
     setRevealedDefinition(null);
+    setShowExplanation(null);
+    setLastAnswerCorrect(null);
+    setCharacterAnimation(null);
   };
 
-  const handleAnswer = (correct: boolean) => {
+  const handleAnswer = (correct: boolean, answerText?: string) => {
+    playClickSound();
+    setLastAnswerCorrect(correct);
+    
     if (correct) {
+      playCorrectSound();
       setScore(score + 1);
-    }
-    if (currentQuestion < totalQuestions) {
-      setCurrentQuestion(currentQuestion + 1);
+      setCharacterAnimation('grow');
+      setShowExplanation(null);
+      setTimeout(() => setCharacterAnimation(null), 600);
+      
+      setTimeout(() => {
+        if (currentQuestion < totalQuestions) {
+          setCurrentQuestion(currentQuestion + 1);
+          setLastAnswerCorrect(null);
+        } else {
+          setGameCompleted(true);
+        }
+      }, 1500);
     } else {
-      setGameCompleted(true);
+      playWrongSound();
+      setWrongAnswers(wrongAnswers + 1);
+      setCharacterAnimation('shrink');
+      if (answerText && explanations[answerText]) {
+        setShowExplanation(explanations[answerText]);
+      }
+      setTimeout(() => setCharacterAnimation(null), 600);
+      
+      setTimeout(() => {
+        if (currentQuestion < totalQuestions) {
+          setCurrentQuestion(currentQuestion + 1);
+          setLastAnswerCorrect(null);
+          setShowExplanation(null);
+        } else {
+          setGameCompleted(true);
+        }
+      }, 3000);
     }
   };
 
@@ -466,13 +540,13 @@ export default function Index() {
   const currentGrade = educationData.find(g => g.level === selectedGrade);
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="bg-white border-b border-border sticky top-0 z-50 no-print">
+    <div className="min-h-screen nature-gradient">
+      <header className="bg-white/95 backdrop-blur-sm border-b border-primary/20 sticky top-0 z-50 no-print shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <Icon name="Globe" className="text-white" size={24} />
+              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md">
+                <span className="text-2xl">🌿</span>
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">Окружающий мир</h1>
@@ -536,8 +610,11 @@ export default function Index() {
                   <AccordionItem key={module.id} value={module.id}>
                     <AccordionTrigger className="hover:no-underline">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-secondary rounded-md flex items-center justify-center flex-shrink-0">
-                          <Icon name="FolderOpen" className="text-primary" size={18} />
+                        <div className={`w-10 h-10 ${getModuleThemeClass(module.theme)} rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                          {module.theme === 'nature' && <span className="text-xl">🌱</span>}
+                          {module.theme === 'sky' && <span className="text-xl">☁️</span>}
+                          {module.theme === 'earth' && <span className="text-xl">🏞️</span>}
+                          {module.theme === 'water' && <span className="text-xl">💧</span>}
                         </div>
                         <span className="font-semibold text-left">Модуль: {module.name}</span>
                         <Badge variant="secondary" className="ml-2">
@@ -800,15 +877,29 @@ export default function Index() {
               </DialogHeader>
 
               <div className="space-y-6 py-4">
-                <Progress value={(currentQuestion / totalQuestions) * 100} className="h-2" />
+                <div className="grid grid-cols-3 gap-4">
+                  <GameCharacter 
+                    type="ant" 
+                    correctAnswers={score} 
+                    totalAnswers={currentQuestion - 1}
+                    showAnimation={characterAnimation}
+                  />
+                  <div className="col-span-1">
+                    <Progress value={(currentQuestion / totalQuestions) * 100} className="h-3 mb-2" />
+                    <p className="text-center text-sm text-muted-foreground">
+                      Вопрос {currentQuestion}/{totalQuestions}
+                    </p>
+                  </div>
+                  <GameCharacter 
+                    type="turtle" 
+                    correctAnswers={score} 
+                    totalAnswers={currentQuestion - 1}
+                    showAnimation={characterAnimation}
+                  />
+                </div>
 
-                <Card className="bg-primary/5 border-primary/20">
+                <Card className="nature-gradient border-green-300 shadow-lg">
                   <CardContent className="pt-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <Badge variant="secondary" className="text-sm">
-                        Текущий счёт: {score}/{currentQuestion - 1}
-                      </Badge>
-                    </div>
                     
                     <h3 className="text-xl font-semibold mb-6">
                       {selectedGame.game.type === 'quiz' && 'Какая планета самая большая в Солнечной системе?'}
@@ -855,16 +946,35 @@ export default function Index() {
                             key={i}
                             variant="outline"
                             size="lg"
-                            className="h-16 text-lg hover:bg-primary hover:text-white transition-colors"
-                            onClick={() => handleAnswer(i === 0)}
+                            disabled={lastAnswerCorrect !== null}
+                            className={`h-16 text-lg transition-all ${
+                              lastAnswerCorrect === true && i === 0 ? 'bg-green-500 text-white border-green-600' :
+                              lastAnswerCorrect === false && i !== 0 ? 'opacity-50' :
+                              'hover:bg-primary hover:text-white'
+                            }`}
+                            onClick={() => handleAnswer(i === 0, option)}
                           >
-                            {option}
+                            <span className="flex items-center gap-2">
+                              {option}
+                              {lastAnswerCorrect === true && i === 0 && (
+                                <Icon name="CheckCircle2" className="text-white" size={20} />
+                              )}
+                            </span>
                           </Button>
                         ))
                       )}
                     </div>
                   </CardContent>
                 </Card>
+
+                {showExplanation && (
+                  <Alert className="bg-yellow-50 border-yellow-300">
+                    <Icon name="Info" className="text-yellow-600" size={20} />
+                    <AlertDescription className="text-yellow-800">
+                      <strong>Объяснение:</strong> {showExplanation}
+                    </AlertDescription>
+                  </Alert>
+                )}
 
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={closeGame} className="flex-1">

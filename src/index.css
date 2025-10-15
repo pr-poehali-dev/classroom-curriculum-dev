@@ -4,35 +4,35 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 217 33% 17%;
+    --background: 142 76% 97%;
+    --foreground: 147 50% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 217 33% 17%;
+    --card-foreground: 147 50% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 217 33% 17%;
+    --popover-foreground: 147 50% 15%;
 
-    --primary: 217 91% 60%;
+    --primary: 142 71% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 214 32% 91%;
-    --secondary-foreground: 217 33% 17%;
+    --secondary: 142 40% 90%;
+    --secondary-foreground: 147 50% 15%;
 
-    --muted: 220 13% 95%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 142 30% 95%;
+    --muted-foreground: 147 20% 40%;
 
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 35 100% 55%;
+    --accent-foreground: 147 50% 15%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 217 91% 60%;
+    --border: 142 30% 85%;
+    --input: 142 30% 90%;
+    --ring: 142 71% 45%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -97,6 +97,11 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family:
+      "Inter",
+      "Roboto",
+      -apple-system,
+      sans-serif;
   }
 }
 
@@ -112,4 +117,87 @@
   .print-break {
     page-break-after: always;
   }
+}
+
+@keyframes grow-flower {
+  0% {
+    transform: scale(0.8) translateY(10px);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1) translateY(-5px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shrink-flower {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.9) translateY(5px);
+  }
+  100% {
+    transform: scale(0.8) translateY(8px);
+    opacity: 0.6;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+.grow-animation {
+  animation: grow-flower 0.6s ease-out forwards;
+}
+
+.shrink-animation {
+  animation: shrink-flower 0.6s ease-out forwards;
+}
+
+.bounce-animation {
+  animation: bounce 0.5s ease-in-out;
+}
+
+.wiggle-animation {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+.nature-gradient {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+}
+
+.sky-gradient {
+  background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%);
+}
+
+.earth-gradient {
+  background: linear-gradient(135deg, #d7ccc8 0%, #bcaaa4 50%, #a1887f 100%);
+}
+
+.water-gradient {
+  background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 50%, #81d4fa 100%);
 }
