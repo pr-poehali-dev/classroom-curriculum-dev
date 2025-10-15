@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useEditMode } from '@/components/EditModeContext';
 
 interface EditableContentProps {
   initialValue: string;
@@ -17,6 +18,7 @@ export default function EditableContent({
   className = '',
   as: Component = 'div'
 }: EditableContentProps) {
+  const { isEditMode } = useEditMode();
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
   const [showControls, setShowControls] = useState(false);
@@ -49,11 +51,11 @@ export default function EditableContent({
     return (
       <div
         className="relative group"
-        onMouseEnter={() => setShowControls(true)}
+        onMouseEnter={() => isEditMode && setShowControls(true)}
         onMouseLeave={() => setShowControls(false)}
       >
         <img src={value} alt="" className={className} />
-        {showControls && (
+        {isEditMode && showControls && (
           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               size="sm"
@@ -81,7 +83,7 @@ export default function EditableContent({
     return (
       <div
         className="relative group"
-        onMouseEnter={() => setShowControls(true)}
+        onMouseEnter={() => isEditMode && setShowControls(true)}
         onMouseLeave={() => setShowControls(false)}
       >
         {value.startsWith('data:') || value.startsWith('http') ? (
@@ -91,7 +93,7 @@ export default function EditableContent({
             <Icon name="Video" size={48} className="text-muted-foreground" />
           </div>
         )}
-        {showControls && (
+        {isEditMode && showControls && (
           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               size="sm"
@@ -119,7 +121,7 @@ export default function EditableContent({
     <div
       ref={contentRef}
       className="relative group"
-      onMouseEnter={() => setShowControls(true)}
+      onMouseEnter={() => isEditMode && setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
     >
       {isEditing ? (
@@ -151,7 +153,7 @@ export default function EditableContent({
       ) : (
         <>
           <Component className={className}>{value}</Component>
-          {showControls && (
+          {isEditMode && showControls && (
             <Button
               size="sm"
               variant="ghost"

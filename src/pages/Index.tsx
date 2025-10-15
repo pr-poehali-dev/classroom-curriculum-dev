@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import Icon from '@/components/ui/icon';
 import AnimatedCharacter from '@/components/AnimatedCharacter';
 import EditableContent from '@/components/EditableContent';
+import { useEditMode } from '@/components/EditModeContext';
 import { useSound } from '@/hooks/useSound';
 
 interface Game {
@@ -409,6 +410,7 @@ export default function Index() {
   const navigate = useNavigate();
   const location = useLocation();
   const isLearnPage = location.pathname === '/learn';
+  const { isEditMode, toggleEditMode } = useEditMode();
   
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
   const [selectedDifficulty, setSelectedDifficulty] = useState<Game['difficulty'] | 'all'>('all');
@@ -595,6 +597,14 @@ export default function Index() {
                   На главную
                 </Button>
               )}
+              <Button
+                onClick={toggleEditMode}
+                variant={isEditMode ? 'default' : 'outline'}
+                className="gap-2"
+              >
+                <Icon name={isEditMode ? 'Lock' : 'Edit'} size={18} />
+                {isEditMode ? 'Завершить' : 'Редактировать'}
+              </Button>
               <Button variant="outline" className="gap-2" onClick={() => window.print()}>
                 <Icon name="Printer" size={18} />
                 Версия для печати
