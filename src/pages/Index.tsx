@@ -5,9 +5,16 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Icon from '@/components/ui/icon';
 
+interface Game {
+  type: 'quiz' | 'match' | 'practice';
+  difficulty: 'easy' | 'medium' | 'hard';
+  estimatedTime: number;
+}
+
 interface Topic {
   title: string;
   description?: string;
+  games: Game[];
 }
 
 interface Module {
@@ -37,17 +44,48 @@ const educationData: Grade[] = [
             id: 'm1-1',
             name: 'Числа и счёт',
             topics: [
-              { title: 'Счёт от 1 до 10', description: 'Знакомство с цифрами' },
-              { title: 'Сравнение чисел', description: 'Больше, меньше, равно' },
-              { title: 'Сложение в пределах 10' }
+              { 
+                title: 'Счёт от 1 до 10', 
+                description: 'Знакомство с цифрами',
+                games: [
+                  { type: 'quiz', difficulty: 'easy', estimatedTime: 5 },
+                  { type: 'practice', difficulty: 'easy', estimatedTime: 10 }
+                ]
+              },
+              { 
+                title: 'Сравнение чисел', 
+                description: 'Больше, меньше, равно',
+                games: [
+                  { type: 'match', difficulty: 'easy', estimatedTime: 7 },
+                  { type: 'quiz', difficulty: 'medium', estimatedTime: 8 }
+                ]
+              },
+              { 
+                title: 'Сложение в пределах 10',
+                games: [
+                  { type: 'practice', difficulty: 'medium', estimatedTime: 12 },
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 10 }
+                ]
+              }
             ]
           },
           {
             id: 'm1-2',
             name: 'Геометрия',
             topics: [
-              { title: 'Фигуры: круг, квадрат, треугольник' },
-              { title: 'Цвета и формы' }
+              { 
+                title: 'Фигуры: круг, квадрат, треугольник',
+                games: [
+                  { type: 'match', difficulty: 'easy', estimatedTime: 8 },
+                  { type: 'quiz', difficulty: 'easy', estimatedTime: 6 }
+                ]
+              },
+              { 
+                title: 'Цвета и формы',
+                games: [
+                  { type: 'match', difficulty: 'easy', estimatedTime: 5 }
+                ]
+              }
             ]
           }
         ]
@@ -59,8 +97,19 @@ const educationData: Grade[] = [
             id: 'm1-3',
             name: 'Вычитание',
             topics: [
-              { title: 'Вычитание в пределах 10' },
-              { title: 'Решение задач' }
+              { 
+                title: 'Вычитание в пределах 10',
+                games: [
+                  { type: 'practice', difficulty: 'medium', estimatedTime: 10 },
+                  { type: 'quiz', difficulty: 'medium', estimatedTime: 8 }
+                ]
+              },
+              { 
+                title: 'Решение задач',
+                games: [
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 15 }
+                ]
+              }
             ]
           }
         ]
@@ -77,17 +126,46 @@ const educationData: Grade[] = [
             id: 'm2-1',
             name: 'Числа до 100',
             topics: [
-              { title: 'Счёт десятками' },
-              { title: 'Сложение и вычитание двузначных чисел' },
-              { title: 'Таблица умножения на 2' }
+              { 
+                title: 'Счёт десятками',
+                games: [
+                  { type: 'practice', difficulty: 'easy', estimatedTime: 8 }
+                ]
+              },
+              { 
+                title: 'Сложение и вычитание двузначных чисел',
+                games: [
+                  { type: 'practice', difficulty: 'medium', estimatedTime: 12 },
+                  { type: 'quiz', difficulty: 'medium', estimatedTime: 10 }
+                ]
+              },
+              { 
+                title: 'Таблица умножения на 2',
+                games: [
+                  { type: 'quiz', difficulty: 'medium', estimatedTime: 10 },
+                  { type: 'practice', difficulty: 'hard', estimatedTime: 15 }
+                ]
+              }
             ]
           },
           {
             id: 'm2-2',
             name: 'Единицы измерения',
             topics: [
-              { title: 'Сантиметр и метр' },
-              { title: 'Час и минута' }
+              { 
+                title: 'Сантиметр и метр',
+                games: [
+                  { type: 'match', difficulty: 'easy', estimatedTime: 7 },
+                  { type: 'practice', difficulty: 'medium', estimatedTime: 10 }
+                ]
+              },
+              { 
+                title: 'Час и минута',
+                games: [
+                  { type: 'match', difficulty: 'medium', estimatedTime: 9 },
+                  { type: 'quiz', difficulty: 'medium', estimatedTime: 8 }
+                ]
+              }
             ]
           }
         ]
@@ -104,17 +182,45 @@ const educationData: Grade[] = [
             id: 'm3-1',
             name: 'Умножение и деление',
             topics: [
-              { title: 'Таблица умножения' },
-              { title: 'Деление с остатком' },
-              { title: 'Порядок действий' }
+              { 
+                title: 'Таблица умножения',
+                games: [
+                  { type: 'practice', difficulty: 'hard', estimatedTime: 20 },
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 12 }
+                ]
+              },
+              { 
+                title: 'Деление с остатком',
+                games: [
+                  { type: 'practice', difficulty: 'hard', estimatedTime: 15 },
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 10 }
+                ]
+              },
+              { 
+                title: 'Порядок действий',
+                games: [
+                  { type: 'quiz', difficulty: 'medium', estimatedTime: 10 }
+                ]
+              }
             ]
           },
           {
             id: 'm3-2',
             name: 'Доли и дроби',
             topics: [
-              { title: 'Половина, треть, четверть' },
-              { title: 'Сравнение долей' }
+              { 
+                title: 'Половина, треть, четверть',
+                games: [
+                  { type: 'match', difficulty: 'medium', estimatedTime: 10 },
+                  { type: 'quiz', difficulty: 'medium', estimatedTime: 8 }
+                ]
+              },
+              { 
+                title: 'Сравнение долей',
+                games: [
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 12 }
+                ]
+              }
             ]
           }
         ]
@@ -131,17 +237,47 @@ const educationData: Grade[] = [
             id: 'm4-1',
             name: 'Многозначные числа',
             topics: [
-              { title: 'Числа до 1000000' },
-              { title: 'Сложение и вычитание' },
-              { title: 'Умножение на однозначное число' }
+              { 
+                title: 'Числа до 1000000',
+                games: [
+                  { type: 'practice', difficulty: 'medium', estimatedTime: 12 },
+                  { type: 'quiz', difficulty: 'medium', estimatedTime: 10 }
+                ]
+              },
+              { 
+                title: 'Сложение и вычитание',
+                games: [
+                  { type: 'practice', difficulty: 'hard', estimatedTime: 15 },
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 12 }
+                ]
+              },
+              { 
+                title: 'Умножение на однозначное число',
+                games: [
+                  { type: 'practice', difficulty: 'hard', estimatedTime: 18 },
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 15 }
+                ]
+              }
             ]
           },
           {
             id: 'm4-2',
             name: 'Уравнения',
             topics: [
-              { title: 'Решение простых уравнений' },
-              { title: 'Буквенные выражения' }
+              { 
+                title: 'Решение простых уравнений',
+                games: [
+                  { type: 'practice', difficulty: 'hard', estimatedTime: 20 },
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 15 }
+                ]
+              },
+              { 
+                title: 'Буквенные выражения',
+                games: [
+                  { type: 'quiz', difficulty: 'hard', estimatedTime: 12 },
+                  { type: 'practice', difficulty: 'hard', estimatedTime: 18 }
+                ]
+              }
             ]
           }
         ]
@@ -149,6 +285,24 @@ const educationData: Grade[] = [
     ]
   }
 ];
+
+const gameTypeLabels: Record<Game['type'], string> = {
+  quiz: 'Викторина',
+  match: 'Сопоставление',
+  practice: 'Тренировка'
+};
+
+const difficultyLabels: Record<Game['difficulty'], string> = {
+  easy: 'Лёгкий',
+  medium: 'Средний',
+  hard: 'Сложный'
+};
+
+const difficultyColors: Record<Game['difficulty'], string> = {
+  easy: 'bg-green-100 text-green-700 border-green-200',
+  medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+  hard: 'bg-red-100 text-red-700 border-red-200'
+};
 
 export default function Index() {
   const [selectedGrade, setSelectedGrade] = useState<number>(1);
@@ -179,7 +333,7 @@ export default function Index() {
 
       <nav className="bg-white border-b border-border no-print">
         <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-2 flex-wrap mx-1 px-0 bg-slate-400 rounded-none">
+          <div className="flex items-center gap-2 flex-wrap">
             {[1, 2, 3, 4].map((grade) => (
               <Button
                 key={grade}
@@ -250,15 +404,33 @@ export default function Index() {
                                 Тема: {topic.title}
                               </h4>
                               {topic.description && (
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-sm text-muted-foreground mb-3">
                                   {topic.description}
                                 </p>
                               )}
+                              
+                              <div className="flex flex-wrap gap-2 mt-3">
+                                {topic.games.map((game, gIndex) => (
+                                  <Button
+                                    key={gIndex}
+                                    variant="outline"
+                                    size="sm"
+                                    className="gap-2 text-xs h-8"
+                                  >
+                                    <Icon name="Gamepad2" size={14} />
+                                    {gameTypeLabels[game.type]}
+                                    <Badge className={`${difficultyColors[game.difficulty]} text-xs px-1.5 py-0 h-5`}>
+                                      {difficultyLabels[game.difficulty]}
+                                    </Badge>
+                                    <span className="text-muted-foreground">~{game.estimatedTime} мин</span>
+                                  </Button>
+                                ))}
+                              </div>
                             </div>
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity no-print"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity no-print self-start"
                             >
                               <Icon name="ExternalLink" size={16} />
                             </Button>
@@ -287,6 +459,7 @@ export default function Index() {
                   <li>• Выберите класс в верхней навигации</li>
                   <li>• Откройте нужный учебник и модуль</li>
                   <li>• Нажмите на тему для просмотра материалов</li>
+                  <li>• Играйте в обучающие игры для закрепления знаний</li>
                   <li>• Используйте кнопку "Версия для печати" для распечатки</li>
                 </ul>
               </div>
