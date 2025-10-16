@@ -61,8 +61,8 @@ export default function AnimatedCharacter({
           <circle cx="94" cy="42" r="3" fill="white" />
           <circle cx="114" cy="42" r="3" fill="white" />
           
-          {/* Усики с анимацией */}
-          <g className={animation === 'happy' ? 'animate-wiggle' : ''}>
+          {/* Усики без анимации */}
+          <g>
             <path
               d="M 85 35 Q 75 25 70 15 Q 68 10 65 8"
               stroke="#ff6b4a"

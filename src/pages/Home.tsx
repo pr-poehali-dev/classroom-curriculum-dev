@@ -99,8 +99,14 @@ export default function Home() {
         <section className="container mx-auto px-4 py-16">
           <div className="text-center mb-12">
             <div className="flex justify-center items-center gap-8 mb-6">
-              <div className="hidden md:block transform -scale-x-100">
+              <div 
+                className="hidden md:block transform -scale-x-100 group relative"
+                title="Муравьишка Вопросик"
+              >
                 <AnimatedCharacter type="ant" animation="happy" size={160} />
+                <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-white shadow-lg rounded-lg px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+                  <p className="text-sm font-medium text-green-700">💡 Задавай вопросы и исследуй мир!</p>
+                </div>
               </div>
               <div className="flex-1">
                 <EditableContent
@@ -116,8 +122,14 @@ export default function Home() {
                   className="text-xl text-green-700 max-w-3xl mx-auto leading-relaxed"
                 />
               </div>
-              <div className="hidden md:block">
+              <div 
+                className="hidden md:block group relative"
+                title="Мудрая Черепаха"
+              >
                 <AnimatedCharacter type="turtle" animation="happy" size={160} />
+                <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-white shadow-lg rounded-lg px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+                  <p className="text-sm font-medium text-blue-700">🎓 Учись терпеливо и с удовольствием!</p>
+                </div>
               </div>
             </div>
           </div>
@@ -302,6 +314,37 @@ export default function Home() {
           </div>
 
           <div className="mb-16">
+            <EditableContent
+              initialValue={texts.didacticTitle || '📚 Дидактические материалы'}
+              onSave={(value) => updateText('didacticTitle', value)}
+              as="h3"
+              className="text-3xl font-bold text-center mb-4 text-green-800"
+            />
+            <EditableContent
+              initialValue={texts.didacticDescription || 'Подборка готовых материалов для занятий окружающим миром'}
+              onSave={(value) => updateText('didacticDescription', value)}
+              as="p"
+              className="text-center text-green-600 mb-8 max-w-2xl mx-auto"
+            />
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {[
+                { icon: '📝', title: 'Рабочие листы', description: 'Готовые задания для распечатки' },
+                { icon: '🎨', title: 'Раскраски', description: 'Тематические раскраски по природе' },
+                { icon: '🧩', title: 'Карточки', description: 'Дидактические карточки для игр' },
+                { icon: '📊', title: 'Презентации', description: 'Слайды для уроков' },
+                { icon: '🎬', title: 'Видеоматериалы', description: 'Обучающие видео' },
+                { icon: '🔬', title: 'Опыты', description: 'Инструкции для экспериментов' }
+              ].map((material, i) => (
+                <Card key={i} className="watercolor-card border-blue-200 hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardContent className="pt-6">
+                    <div className="text-4xl mb-3">{material.icon}</div>
+                    <h4 className="text-lg font-bold text-blue-800 mb-2">{material.title}</h4>
+                    <p className="text-sm text-blue-600">{material.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
             <h3 className="text-3xl font-bold text-center mb-8 text-green-800">
               ✨ Особенности платформы
             </h3>

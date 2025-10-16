@@ -9,6 +9,8 @@ import Home from "./pages/Home";
 import Learn from "./pages/Learn";
 import AboutProject from "./pages/AboutProject";
 import AboutAuthor from "./pages/AboutAuthor";
+import LearningHub from "./pages/LearningHub";
+import GameLoader from "./pages/GameLoader";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,7 +24,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/learn" element={<Learn />} />
+            <Route path="/learn" element={<LearningHub />} />
+            <Route path="/game/:topicId" element={<GameLoader />} />
             <Route path="/about-project" element={<AboutProject />} />
             <Route path="/about-author" element={<AboutAuthor />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
