@@ -1,59 +1,51 @@
-import { useCallback } from 'react';
+import { useRef, useCallback } from 'react';
+
+const SOUNDS = {
+  correct: 'https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3',
+  wrong: 'https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3',
+  click: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
+  success: 'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3',
+  flip: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+};
 
 export const useSound = () => {
-  const playCorrectSound = useCallback(() => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
-    oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1);
-    oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2);
-    
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.3);
+  const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
+
+  const preloadSounds = useCallback(() => {
+    Object.entries(SOUNDS).forEach(([key, url]) => {
+      if (!audioRefs.current[key]) {
+        const audio = new Audio(url);
+        audio.preload = 'auto';
+        audioRefs.current[key] = audio;
+      }
+    });
   }, []);
 
-  const playWrongSound = useCallback(() => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-    oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.15);
-    
-    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.3);
+  const play = useCallback((soundName: keyof typeof SOUNDS, volume = 0.3) => {
+    const audio = audioRefs.current[soundName];
+    if (audio) {
+      audio.volume = volume;
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    }
   }, []);
 
-  const playClickSound = useCallback(() => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-    
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.1);
+  const playCustom = useCallback((url: string, volume = 0.3) => {
+    const audio = new Audio(url);
+    audio.volume = volume;
+    audio.play().catch(() => {});
   }, []);
 
-  return { playCorrectSound, playWrongSound, playClickSound };
+  const playCorrectSound = useCallback(() => play('correct'), [play]);
+  const playWrongSound = useCallback(() => play('wrong'), [play]);
+  const playClickSound = useCallback(() => play('click'), [play]);
+
+  return { 
+    play, 
+    playCustom, 
+    preloadSounds,
+    playCorrectSound, 
+    playWrongSound, 
+    playClickSound 
+  };
 };

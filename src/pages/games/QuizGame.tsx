@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import FlowerProgress from '@/components/FlowerProgress';
 import MediaEmbed from '@/components/MediaEmbed';
+import GameCharacter from '@/components/GameCharacter';
 import { useNavigate } from 'react-router-dom';
+import { useSound } from '@/hooks/useSound';
 
 export interface QuizQuestion {
   question: string;
@@ -26,7 +28,13 @@ export default function QuizGame({ title, questions }: QuizGameProps) {
   const [correctCount, setCorrectCount] = useState(0);
   const [showExplanation, setShowExplanation] = useState(false);
   const [gameFinished, setGameFinished] = useState(false);
+  const [showAnimation, setShowAnimation] = useState<'grow' | 'shrink' | null>(null);
   const navigate = useNavigate();
+  const { playCorrectSound, playWrongSound, preloadSounds } = useSound();
+
+  useEffect(() => {
+    preloadSounds();
+  }, [preloadSounds]);
 
   const question = questions[currentQuestion];
 
@@ -38,6 +46,13 @@ export default function QuizGame({ title, questions }: QuizGameProps) {
     
     if (index === question.correctAnswer) {
       setCorrectCount(prev => prev + 1);
+      playCorrectSound();
+      setShowAnimation('grow');
+      setTimeout(() => setShowAnimation(null), 600);
+    } else {
+      playWrongSound();
+      setShowAnimation('shrink');
+      setTimeout(() => setShowAnimation(null), 600);
     }
   };
 
@@ -189,6 +204,15 @@ export default function QuizGame({ title, questions }: QuizGameProps) {
               )}
             </CardContent>
           </Card>
+          
+          <div className="fixed bottom-4 right-4">
+            <GameCharacter 
+              type="ant"
+              correctAnswers={correctCount}
+              totalAnswers={currentQuestion + 1}
+              showAnimation={showAnimation}
+            />
+          </div>
         </div>
       </div>
     </div>

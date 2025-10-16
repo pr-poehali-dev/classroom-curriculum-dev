@@ -3,7 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import FlowerProgress from '@/components/FlowerProgress';
+import GameCharacter from '@/components/GameCharacter';
 import { useNavigate } from 'react-router-dom';
+import { useSound } from '@/hooks/useSound';
 
 export interface MatchPair {
   left: string;
@@ -24,7 +26,13 @@ export default function MatchGame({ title, pairs }: MatchGameProps) {
   const [matches, setMatches] = useState<Set<number>>(new Set());
   const [correctMatches, setCorrectMatches] = useState(0);
   const [gameFinished, setGameFinished] = useState(false);
+  const [showAnimation, setShowAnimation] = useState<'grow' | 'shrink' | null>(null);
   const navigate = useNavigate();
+  const { playCorrectSound, playWrongSound, playClickSound, preloadSounds } = useSound();
+
+  useEffect(() => {
+    preloadSounds();
+  }, [preloadSounds]);
 
   useEffect(() => {
     setLeftItems(pairs.map(p => p.left));
@@ -34,6 +42,7 @@ export default function MatchGame({ title, pairs }: MatchGameProps) {
   const handleLeftClick = (index: number) => {
     if (matches.has(index)) return;
     setSelectedLeft(index);
+    playClickSound();
   };
 
   const handleRightClick = (index: number) => {
@@ -58,11 +67,18 @@ export default function MatchGame({ title, pairs }: MatchGameProps) {
       newMatches.add(leftIndex);
       newMatches.add(rightIndex);
       setMatches(newMatches);
+      playCorrectSound();
+      setShowAnimation('grow');
+      setTimeout(() => setShowAnimation(null), 600);
       setCorrectMatches(prev => prev + 1);
       
       if (newMatches.size === pairs.length * 2) {
         setTimeout(() => setGameFinished(true), 1000);
       }
+    } else {
+      playWrongSound();
+      setShowAnimation('shrink');
+      setTimeout(() => setShowAnimation(null), 600);
     }
 
     setTimeout(() => {
@@ -188,6 +204,15 @@ export default function MatchGame({ title, pairs }: MatchGameProps) {
               </div>
             </CardContent>
           </Card>
+          
+          <div className="fixed bottom-4 right-4">
+            <GameCharacter 
+              type="ant"
+              correctAnswers={correctMatches}
+              totalAnswers={pairs.length}
+              showAnimation={showAnimation}
+            />
+          </div>
         </div>
       </div>
     </div>

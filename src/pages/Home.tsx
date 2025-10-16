@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -5,6 +6,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import EditableContent from '@/components/EditableContent';
 import AnimatedCharacter from '@/components/AnimatedCharacter';
 import RippleCard from '@/components/RippleCard';
+import FileUploadCard from '@/components/FileUploadCard';
+import EditorPanel from '@/components/editor/EditorPanel';
 import { useEditMode } from '@/components/EditModeContext';
 import { Input } from '@/components/ui/input';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -12,6 +15,8 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 export default function Home() {
   const navigate = useNavigate();
   const { isEditMode, toggleEditMode } = useEditMode();
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [customBlocks, setCustomBlocks] = useLocalStorage<any[]>('homeCustomBlocks', []);
   
   const [backgroundColor, setBackgroundColor] = useLocalStorage('homeBackgroundColor', '#f0f9f0');
   
@@ -41,24 +46,50 @@ export default function Home() {
     setMedia(prev => ({ ...prev, [key]: value }));
   };
 
+  const handleInsertBlock = (blockType: string, data: any) => {
+    const newBlock = {
+      id: Date.now().toString(),
+      type: blockType,
+      data
+    };
+    setCustomBlocks([...customBlocks, newBlock]);
+  };
+
+  const handleDeleteBlock = (id: string) => {
+    setCustomBlocks(customBlocks.filter(block => block.id !== id));
+  };
+
+  const handleUpdateBlock = (id: string, data: any) => {
+    setCustomBlocks(customBlocks.map(block => 
+      block.id === id ? { ...block, data } : block
+    ));
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor }}>
       <div className="watercolor-leaves" />
       <div className="absolute inset-0 gradient-nature opacity-90" />
       
       {isEditMode && (
-        <div className="fixed bottom-4 right-4 z-50 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-2xl border-2 border-green-300">
-          <p className="text-sm font-semibold text-green-800 mb-2">🎨 Настройка фона</p>
-          <div className="flex gap-2 items-center">
-            <Input
-              type="color"
-              value={backgroundColor}
-              onChange={(e) => setBackgroundColor(e.target.value)}
-              className="w-16 h-10 cursor-pointer"
-            />
-            <span className="text-xs text-muted-foreground">{backgroundColor}</span>
+        <>
+          <div className="fixed bottom-4 left-4 z-50 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-2xl border-2 border-green-300">
+            <p className="text-sm font-semibold text-green-800 mb-2">🎨 Настройка фона</p>
+            <div className="flex gap-2 items-center">
+              <Input
+                type="color"
+                value={backgroundColor}
+                onChange={(e) => setBackgroundColor(e.target.value)}
+                className="w-16 h-10 cursor-pointer"
+              />
+              <span className="text-xs text-muted-foreground">{backgroundColor}</span>
+            </div>
           </div>
-        </div>
+          <EditorPanel 
+            onInsertBlock={handleInsertBlock}
+            isOpen={isPanelOpen}
+            onToggle={() => setIsPanelOpen(!isPanelOpen)}
+          />
+        </>
       )}
       
       <header className="relative z-10 bg-white/80 backdrop-blur-md border-b border-green-200 shadow-sm">
@@ -104,8 +135,13 @@ export default function Home() {
                 title="Муравьишка Вопросик"
               >
                 <AnimatedCharacter type="ant" animation="happy" size={160} />
-                <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-white shadow-lg rounded-lg px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
-                  <p className="text-sm font-medium text-green-700">💡 Задавай вопросы и исследуй мир!</p>
+                <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-white shadow-lg rounded-lg px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none z-10">
+                  <EditableContent
+                    initialValue={texts.antMessage || '💡 Привет! Я Муравьишка Вопросик. Люблю задавать вопросы и узнавать новое!'}
+                    onSave={(value) => updateText('antMessage', value)}
+                    as="p"
+                    className="text-sm font-medium text-green-700"
+                  />
                 </div>
               </div>
               <div className="flex-1">
@@ -127,8 +163,13 @@ export default function Home() {
                 title="Мудрая Черепаха"
               >
                 <AnimatedCharacter type="turtle" animation="happy" size={160} />
-                <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-white shadow-lg rounded-lg px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
-                  <p className="text-sm font-medium text-blue-700">🎓 Учись терпеливо и с удовольствием!</p>
+                <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-white shadow-lg rounded-lg px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none z-10">
+                  <EditableContent
+                    initialValue={texts.turtleMessage || '🎓 Здравствуй! Я Мудрая Черепаха. Помогу тебе учиться терпеливо!'}
+                    onSave={(value) => updateText('turtleMessage', value)}
+                    as="p"
+                    className="text-sm font-medium text-blue-700"
+                  />
                 </div>
               </div>
             </div>
@@ -192,6 +233,31 @@ export default function Home() {
                 />
               </CardContent>
             </RippleCard>
+          </div>
+
+          <div className="mb-16 max-w-4xl mx-auto">
+            <Card className="watercolor-card border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-white shadow-xl">
+              <CardContent className="p-8">
+                <div className="flex items-start gap-4">
+                  <div className="text-6xl text-green-500 opacity-50">"</div>
+                  <div className="flex-1">
+                    <EditableContent
+                      initialValue={texts.quoteText || 'Природа — это единственная книга, каждая страница которой полна глубокого содержания'}
+                      onSave={(value) => updateText('quoteText', value)}
+                      as="p"
+                      className="text-xl italic text-green-800 mb-4"
+                    />
+                    <EditableContent
+                      initialValue={texts.quoteAuthor || 'И. В. Гёте'}
+                      onSave={(value) => updateText('quoteAuthor', value)}
+                      as="p"
+                      className="text-sm font-medium text-green-600 text-right"
+                    />
+                  </div>
+                  <div className="text-6xl text-green-500 opacity-50 self-end">"</div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="mb-16">
@@ -326,23 +392,25 @@ export default function Home() {
               as="p"
               className="text-center text-green-600 mb-8 max-w-2xl mx-auto"
             />
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {[
-                { icon: '📝', title: 'Рабочие листы', description: 'Готовые задания для распечатки' },
-                { icon: '🎨', title: 'Раскраски', description: 'Тематические раскраски по природе' },
-                { icon: '🧩', title: 'Карточки', description: 'Дидактические карточки для игр' },
-                { icon: '📊', title: 'Презентации', description: 'Слайды для уроков' },
-                { icon: '🎬', title: 'Видеоматериалы', description: 'Обучающие видео' },
-                { icon: '🔬', title: 'Опыты', description: 'Инструкции для экспериментов' }
-              ].map((material, i) => (
-                <Card key={i} className="watercolor-card border-blue-200 hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="pt-6">
-                    <div className="text-4xl mb-3">{material.icon}</div>
-                    <h4 className="text-lg font-bold text-blue-800 mb-2">{material.title}</h4>
-                    <p className="text-sm text-blue-600">{material.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              <FileUploadCard 
+                icon="📝" 
+                title="Рабочие листы" 
+                description="Загрузите Word или PDF файлы"
+                storageKey="worksheets"
+              />
+              <FileUploadCard 
+                icon="🎨" 
+                title="Раскраски" 
+                description="Загрузите изображения раскрасок"
+                storageKey="colorings"
+              />
+              <FileUploadCard 
+                icon="🧩" 
+                title="Карточки" 
+                description="Загрузите дидактические карточки"
+                storageKey="cards"
+              />
             </div>
 
             <h3 className="text-3xl font-bold text-center mb-8 text-green-800">

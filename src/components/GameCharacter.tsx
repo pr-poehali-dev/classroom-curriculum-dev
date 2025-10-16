@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Icon from './ui/icon';
+import AnimatedCharacter from './AnimatedCharacter';
 
 interface GameCharacterProps {
   type: 'ant' | 'turtle';
@@ -10,33 +11,59 @@ interface GameCharacterProps {
 
 export default function GameCharacter({ type, correctAnswers, totalAnswers, showAnimation }: GameCharacterProps) {
   const [animationClass, setAnimationClass] = useState('');
+  const [characterAnimation, setCharacterAnimation] = useState<'idle' | 'happy' | 'thinking'>('idle');
 
   useEffect(() => {
     if (showAnimation === 'grow') {
       setAnimationClass('grow-animation bounce-animation');
-      setTimeout(() => setAnimationClass(''), 600);
+      setCharacterAnimation('happy');
+      setTimeout(() => {
+        setAnimationClass('');
+        setCharacterAnimation('thinking');
+      }, 600);
     } else if (showAnimation === 'shrink') {
       setAnimationClass('shrink-animation wiggle-animation');
       setTimeout(() => setAnimationClass(''), 600);
     }
   }, [showAnimation]);
 
+  useEffect(() => {
+    const progress = totalAnswers > 0 ? (correctAnswers / totalAnswers) * 100 : 0;
+    if (progress === 100) {
+      setCharacterAnimation('happy');
+    } else if (progress > 0) {
+      setCharacterAnimation('thinking');
+    } else {
+      setCharacterAnimation('idle');
+    }
+  }, [correctAnswers, totalAnswers]);
+
   const flowerHeight = Math.min(100, (correctAnswers / Math.max(totalAnswers, 1)) * 100);
   const stemHeight = Math.max(20, flowerHeight);
 
+  const getFlowerEmoji = () => {
+    if (flowerHeight >= 100) return '🌺';
+    if (flowerHeight >= 75) return '🌸';
+    if (flowerHeight >= 50) return '🌼';
+    if (flowerHeight >= 25) return '🌱';
+    return '🌰';
+  };
+
   return (
-    <div className="flex flex-col items-center gap-2 p-4 bg-gradient-to-b from-sky-100 to-green-50 rounded-xl border-2 border-green-200">
+    <div className="flex flex-col items-center gap-2 p-4 bg-gradient-to-b from-sky-100 to-green-50 rounded-xl border-2 border-green-200 shadow-lg">
       {type === 'ant' && (
         <div className="flex flex-col items-center">
-          <div className="text-4xl animate-pulse">🐜</div>
-          <p className="text-xs font-semibold text-green-800 mt-1">Муравьишка Вопросик</p>
+          <div className="transform -scale-x-100">
+            <AnimatedCharacter type="ant" animation={characterAnimation} size={60} />
+          </div>
+          <p className="text-xs font-semibold text-green-800 mt-1">Муравьишка</p>
         </div>
       )}
       
       {type === 'turtle' && (
         <div className="flex flex-col items-center">
-          <div className="text-4xl">🐢</div>
-          <p className="text-xs font-semibold text-green-800 mt-1">Мудрая Черепаха</p>
+          <AnimatedCharacter type="turtle" animation={characterAnimation} size={60} />
+          <p className="text-xs font-semibold text-green-800 mt-1">Черепаха</p>
         </div>
       )}
 
@@ -51,7 +78,7 @@ export default function GameCharacter({ type, correctAnswers, totalAnswers, show
             className={`absolute bottom-0 left-1/2 -translate-x-1/2 transition-all duration-500 ${animationClass}`}
             style={{ bottom: `${stemHeight - 10}px` }}
           >
-            <div className="text-4xl">🌸</div>
+            <div className="text-4xl">{getFlowerEmoji()}</div>
           </div>
 
           <div className="flex justify-center gap-1 mt-2">
@@ -81,7 +108,7 @@ export default function GameCharacter({ type, correctAnswers, totalAnswers, show
       {correctAnswers > 0 && correctAnswers === totalAnswers && (
         <div className="flex items-center gap-1 text-yellow-500 animate-bounce">
           <Icon name="Star" size={16} fill="currentColor" />
-          <span className="text-xs font-bold">Молодец!</span>
+          <span className="text-xs font-bold">Отлично!</span>
           <Icon name="Star" size={16} fill="currentColor" />
         </div>
       )}
