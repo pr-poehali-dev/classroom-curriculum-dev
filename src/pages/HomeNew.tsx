@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
@@ -56,6 +56,21 @@ export default function Home() {
     { id: 'materials', type: 'materials', data: {} },
     { id: 'cta', type: 'cta', data: {} }
   ]);
+
+  useEffect(() => {
+    const requiredBlocks = ['hero', 'about-cards', 'quote', 'features', 'materials', 'cta'];
+    const existingTypes = blocks.map(b => b.type);
+    const missingTypes = requiredBlocks.filter(type => !existingTypes.includes(type));
+    
+    if (missingTypes.length > 0) {
+      const newBlocks = missingTypes.map(type => ({
+        id: `${type}-${Date.now()}`,
+        type,
+        data: {}
+      }));
+      setBlocks([...blocks, ...newBlocks]);
+    }
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
