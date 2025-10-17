@@ -5,11 +5,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { EditModeProvider } from "@/components/EditModeContext";
-import Home from "./pages/Home";
+import Home from "./pages/HomeNew";
 import Learn from "./pages/Learn";
 import AboutProject from "./pages/AboutProject";
 import AboutAuthor from "./pages/AboutAuthor";
-import LearningHub from "./pages/LearningHub";
+import LearningHub from "./pages/LearningHubNew";
 import GameLoader from "./pages/GameLoader";
 import NotFound from "./pages/NotFound";
 

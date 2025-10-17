@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import FlowerProgress from '@/components/FlowerProgress';
 import MediaEmbed from '@/components/MediaEmbed';
 import GameCharacter from '@/components/GameCharacter';
+import GameStats from '@/components/GameStats';
 import { useNavigate } from 'react-router-dom';
 import { useSound } from '@/hooks/useSound';
 
@@ -26,9 +26,12 @@ export default function QuizGame({ title, questions }: QuizGameProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
+  const [incorrectCount, setIncorrectCount] = useState(0);
   const [showExplanation, setShowExplanation] = useState(false);
   const [gameFinished, setGameFinished] = useState(false);
   const [showAnimation, setShowAnimation] = useState<'grow' | 'shrink' | null>(null);
+  const [startTime] = useState(Date.now());
+  const [timeSpent, setTimeSpent] = useState(0);
   const navigate = useNavigate();
   const { playCorrectSound, playWrongSound, preloadSounds } = useSound();
 
@@ -50,6 +53,7 @@ export default function QuizGame({ title, questions }: QuizGameProps) {
       setShowAnimation('grow');
       setTimeout(() => setShowAnimation(null), 600);
     } else {
+      setIncorrectCount(prev => prev + 1);
       playWrongSound();
       setShowAnimation('shrink');
       setTimeout(() => setShowAnimation(null), 600);
@@ -62,6 +66,8 @@ export default function QuizGame({ title, questions }: QuizGameProps) {
       setSelectedAnswer(null);
       setShowExplanation(false);
     } else {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      setTimeSpent(elapsed);
       setGameFinished(true);
     }
   };
@@ -70,40 +76,22 @@ export default function QuizGame({ title, questions }: QuizGameProps) {
     setCurrentQuestion(0);
     setSelectedAnswer(null);
     setCorrectCount(0);
+    setIncorrectCount(0);
     setShowExplanation(false);
     setGameFinished(false);
+    setTimeSpent(0);
   };
 
   if (gameFinished) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white py-8">
-        <div className="container mx-auto px-4">
-          <Card className="max-w-2xl mx-auto">
-            <CardContent className="pt-8">
-              <h2 className="text-3xl font-bold text-center mb-6 text-green-800">
-                {title} - Результаты
-              </h2>
-              
-              <FlowerProgress 
-                correctAnswers={correctCount} 
-                totalQuestions={questions.length}
-                size={400}
-              />
-              
-              <div className="flex gap-4 justify-center mt-8">
-                <Button onClick={handleRestart} className="gap-2">
-                  <Icon name="RotateCcw" size={18} />
-                  Пройти ещё раз
-                </Button>
-                <Button onClick={() => navigate('/learn')} variant="outline" className="gap-2">
-                  <Icon name="ArrowLeft" size={18} />
-                  К темам
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <GameStats
+        correctAnswers={correctCount}
+        incorrectAnswers={incorrectCount}
+        totalQuestions={questions.length}
+        timeSpent={timeSpent}
+        onRestart={handleRestart}
+        onExit={() => navigate('/learn')}
+      />
     );
   }
 

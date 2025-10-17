@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-import FlowerProgress from '@/components/FlowerProgress';
 import GameCharacter from '@/components/GameCharacter';
+import GameStats from '@/components/GameStats';
 import { useNavigate } from 'react-router-dom';
 import { useSound } from '@/hooks/useSound';
 
@@ -25,8 +25,11 @@ export default function MatchGame({ title, pairs }: MatchGameProps) {
   const [selectedRight, setSelectedRight] = useState<number | null>(null);
   const [matches, setMatches] = useState<Set<number>>(new Set());
   const [correctMatches, setCorrectMatches] = useState(0);
+  const [incorrectMatches, setIncorrectMatches] = useState(0);
   const [gameFinished, setGameFinished] = useState(false);
   const [showAnimation, setShowAnimation] = useState<'grow' | 'shrink' | null>(null);
+  const [startTime] = useState(Date.now());
+  const [timeSpent, setTimeSpent] = useState(0);
   const navigate = useNavigate();
   const { playCorrectSound, playWrongSound, playClickSound, preloadSounds } = useSound();
 
@@ -73,9 +76,12 @@ export default function MatchGame({ title, pairs }: MatchGameProps) {
       setCorrectMatches(prev => prev + 1);
       
       if (newMatches.size === pairs.length * 2) {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        setTimeSpent(elapsed);
         setTimeout(() => setGameFinished(true), 1000);
       }
     } else {
+      setIncorrectMatches(prev => prev + 1);
       playWrongSound();
       setShowAnimation('shrink');
       setTimeout(() => setShowAnimation(null), 600);
@@ -94,39 +100,21 @@ export default function MatchGame({ title, pairs }: MatchGameProps) {
     setSelectedRight(null);
     setMatches(new Set());
     setCorrectMatches(0);
+    setIncorrectMatches(0);
     setGameFinished(false);
+    setTimeSpent(0);
   };
 
   if (gameFinished) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-green-50 to-white py-8">
-        <div className="container mx-auto px-4">
-          <Card className="max-w-2xl mx-auto">
-            <CardContent className="pt-8">
-              <h2 className="text-3xl font-bold text-center mb-6 text-green-800">
-                {title} - Результаты
-              </h2>
-              
-              <FlowerProgress 
-                correctAnswers={correctMatches} 
-                totalQuestions={pairs.length}
-                size={400}
-              />
-              
-              <div className="flex gap-4 justify-center mt-8">
-                <Button onClick={handleRestart} className="gap-2">
-                  <Icon name="RotateCcw" size={18} />
-                  Пройти ещё раз
-                </Button>
-                <Button onClick={() => navigate('/learn')} variant="outline" className="gap-2">
-                  <Icon name="ArrowLeft" size={18} />
-                  К темам
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <GameStats
+        correctAnswers={correctMatches}
+        incorrectAnswers={incorrectMatches}
+        totalQuestions={pairs.length}
+        timeSpent={timeSpent}
+        onRestart={handleRestart}
+        onExit={() => navigate('/learn')}
+      />
     );
   }
 
