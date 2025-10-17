@@ -6,10 +6,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { Link, useNavigate } from 'react-router-dom';
 import EditableContent from '@/components/EditableContent';
-import AnimatedCharacter from '@/components/AnimatedCharacter';
+import HeroCharacter from '@/components/HeroCharacter';
 import RippleCard from '@/components/RippleCard';
 import DraggableBlock from '@/components/DraggableBlock';
 import ImageUploader from '@/components/ImageUploader';
+import FileManager from '@/components/FileManager';
 import EditorPanel from '@/components/editor/EditorPanel';
 import { useEditMode } from '@/components/EditModeContext';
 import { Input } from '@/components/ui/input';
@@ -50,7 +51,10 @@ export default function Home() {
   const [blocks, setBlocks] = useLocalStorage<Block[]>('homeBlocks', [
     { id: 'hero', type: 'hero', data: {} },
     { id: 'about-cards', type: 'about-cards', data: {} },
-    { id: 'quote', type: 'quote', data: {} }
+    { id: 'quote', type: 'quote', data: {} },
+    { id: 'features', type: 'features', data: {} },
+    { id: 'materials', type: 'materials', data: {} },
+    { id: 'cta', type: 'cta', data: {} }
   ]);
 
   const sensors = useSensors(
@@ -99,20 +103,13 @@ export default function Home() {
           <section className="container mx-auto px-4 py-16">
             <div className="text-center mb-12">
               <div className="flex justify-center items-center gap-8 mb-6">
-                <div 
-                  className="hidden md:block transform scale-x-[-1] group relative"
-                  title="Муравьишка Вопросик"
-                >
-                  <AnimatedCharacter type="ant" animation="happy" size={160} />
-                  <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-white shadow-lg rounded-lg px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none z-10 scale-x-[-1]">
-                    <EditableContent
-                      initialValue={texts.antMessage}
-                      onSave={(value) => updateText('antMessage', value)}
-                      as="p"
-                      className="text-sm font-medium text-green-700"
-                    />
-                  </div>
-                </div>
+                <HeroCharacter
+                  type="ant"
+                  message={texts.antMessage}
+                  onMessageChange={(value) => updateText('antMessage', value)}
+                  size={160}
+                  mirrored={true}
+                />
                 <div className="flex-1">
                   <EditableContent
                     initialValue={texts.mainTitle}
@@ -127,20 +124,12 @@ export default function Home() {
                     className="text-xl text-green-700 max-w-3xl mx-auto leading-relaxed"
                   />
                 </div>
-                <div 
-                  className="hidden md:block group relative"
-                  title="Мудрая Черепаха"
-                >
-                  <AnimatedCharacter type="turtle" animation="happy" size={160} />
-                  <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-white shadow-lg rounded-lg px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none z-10">
-                    <EditableContent
-                      initialValue={texts.turtleMessage}
-                      onSave={(value) => updateText('turtleMessage', value)}
-                      as="p"
-                      className="text-sm font-medium text-blue-700"
-                    />
-                  </div>
-                </div>
+                <HeroCharacter
+                  type="turtle"
+                  message={texts.turtleMessage}
+                  onMessageChange={(value) => updateText('turtleMessage', value)}
+                  size={160}
+                />
               </div>
             </div>
           </section>
@@ -164,19 +153,35 @@ export default function Home() {
                     />
                     <Icon name="ChevronRight" className="text-green-600" size={24} />
                   </div>
-                  {isEditMode && (
-                    <div className="mb-4">
-                      <ImageUploader
-                        currentImage={media.projectImage}
-                        onImageSelect={(url) => updateMedia('projectImage', url)}
-                      />
-                    </div>
-                  )}
-                  <img 
-                    src={media.projectImage} 
-                    alt="О проекте"
-                    className="aspect-video rounded-xl mb-4 w-full object-cover"
-                  />
+                  <div className="relative group">
+                    <img 
+                      src={media.projectImage} 
+                      alt="О проекте"
+                      className="aspect-video rounded-xl mb-4 w-full object-cover"
+                    />
+                    {isEditMode && media.projectImage && (
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ImageUploader
+                          currentImage={media.projectImage}
+                          onImageSelect={(url) => updateMedia('projectImage', url)}
+                          trigger={
+                            <Button size="sm" className="shadow-lg">
+                              <Icon name="Image" size={16} className="mr-1" />
+                              Изменить
+                            </Button>
+                          }
+                        />
+                      </div>
+                    )}
+                    {isEditMode && !media.projectImage && (
+                      <div className="mb-4">
+                        <ImageUploader
+                          currentImage={media.projectImage}
+                          onImageSelect={(url) => updateMedia('projectImage', url)}
+                        />
+                      </div>
+                    )}
+                  </div>
                   <EditableContent
                     initialValue={texts.aboutProjectText}
                     onSave={(value) => updateText('aboutProjectText', value)}
@@ -200,19 +205,35 @@ export default function Home() {
                     />
                     <Icon name="ChevronRight" className="text-green-600" size={24} />
                   </div>
-                  {isEditMode && (
-                    <div className="mb-4">
-                      <ImageUploader
-                        currentImage={media.authorImage}
-                        onImageSelect={(url) => updateMedia('authorImage', url)}
-                      />
-                    </div>
-                  )}
-                  <img 
-                    src={media.authorImage} 
-                    alt="Об авторе"
-                    className="aspect-video rounded-xl mb-4 w-full object-cover"
-                  />
+                  <div className="relative group">
+                    <img 
+                      src={media.authorImage} 
+                      alt="Об авторе"
+                      className="aspect-video rounded-xl mb-4 w-full object-cover"
+                    />
+                    {isEditMode && media.authorImage && (
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ImageUploader
+                          currentImage={media.authorImage}
+                          onImageSelect={(url) => updateMedia('authorImage', url)}
+                          trigger={
+                            <Button size="sm" className="shadow-lg">
+                              <Icon name="Image" size={16} className="mr-1" />
+                              Изменить
+                            </Button>
+                          }
+                        />
+                      </div>
+                    )}
+                    {isEditMode && !media.authorImage && (
+                      <div className="mb-4">
+                        <ImageUploader
+                          currentImage={media.authorImage}
+                          onImageSelect={(url) => updateMedia('authorImage', url)}
+                        />
+                      </div>
+                    )}
+                  </div>
                   <EditableContent
                     initialValue={texts.aboutAuthorText}
                     onSave={(value) => updateText('aboutAuthorText', value)}
@@ -291,6 +312,85 @@ export default function Home() {
                   as="div"
                   className="prose max-w-none"
                 />
+              </CardContent>
+            </Card>
+          </section>
+        );
+
+      case 'features':
+        return (
+          <section className="container mx-auto px-4 mb-16">
+            <h3 className="text-3xl font-bold text-center mb-8 text-green-800">
+              ✨ Особенности платформы
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="watercolor-card border-2 border-green-200 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                    <Icon name="Gamepad2" size={32} className="text-green-600" />
+                  </div>
+                  <h4 className="font-bold text-lg mb-2 text-green-800">Интерактивные игры</h4>
+                  <p className="text-sm text-gray-600">Викторины, соответствия, сортировка и память для лучшего усвоения</p>
+                </CardContent>
+              </Card>
+              <Card className="watercolor-card border-2 border-blue-200 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Icon name="TrendingUp" size={32} className="text-blue-600" />
+                  </div>
+                  <h4 className="font-bold text-lg mb-2 text-blue-800">Уровни сложности</h4>
+                  <p className="text-sm text-gray-600">Лёгкий, средний и сложный - для прогрессивного обучения</p>
+                </CardContent>
+              </Card>
+              <Card className="watercolor-card border-2 border-purple-200 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
+                    <Icon name="BarChart3" size={32} className="text-purple-600" />
+                  </div>
+                  <h4 className="font-bold text-lg mb-2 text-purple-800">Статистика прогресса</h4>
+                  <p className="text-sm text-gray-600">Отслеживайте время, правильные и неправильные ответы</p>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+        );
+
+      case 'materials':
+        return (
+          <section className="container mx-auto px-4 mb-16">
+            <h3 className="text-3xl font-bold text-center mb-8 text-green-800">
+              📚 Дидактические материалы
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              <FileManager category="worksheets" title="Рабочие листы" icon="📝" />
+              <FileManager category="coloring" title="Раскраски" icon="🎨" />
+              <FileManager category="cards" title="Карточки" icon="🃏" />
+            </div>
+          </section>
+        );
+
+      case 'cta':
+        return (
+          <section className="container mx-auto px-4 mb-16">
+            <Card className="watercolor-card border-2 border-green-300 bg-gradient-to-r from-green-50 to-blue-50 shadow-2xl max-w-3xl mx-auto">
+              <CardContent className="p-12 text-center">
+                <div className="mb-6">
+                  <span className="text-6xl">🚀</span>
+                </div>
+                <h3 className="text-3xl font-bold mb-4 text-green-800">
+                  Готовы начать увлекательное путешествие?
+                </h3>
+                <p className="text-lg text-gray-700 mb-8">
+                  Присоединяйтесь к тысячам учеников, которые уже открывают для себя мир природы!
+                </p>
+                <Button 
+                  size="lg" 
+                  className="gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-lg px-8 py-6"
+                  onClick={() => navigate('/learn')}
+                >
+                  <Icon name="BookOpen" size={24} />
+                  Начать обучение
+                </Button>
               </CardContent>
             </Card>
           </section>
